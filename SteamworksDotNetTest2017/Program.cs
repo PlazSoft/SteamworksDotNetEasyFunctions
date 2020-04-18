@@ -98,7 +98,7 @@ namespace SteamworksDotNetTest2017
         private static void finalize()
         {
             SteamManager.FinalInit();
-
+            //Test
             //SteamAPI.InitSafe();
             if (SteamManager.Initialized)
             {
