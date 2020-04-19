@@ -1,8 +1,10 @@
-
+#if STEAMCLIENT
 using System.Collections;
 using System.ComponentModel;
 using Steamworks;
 using System;
+using Yargis;
+
 
 // This is a port of StatsAndAchievements.cpp from SpaceWar, the official Steamworks Example.
 public class SteamStatsAndAchievements  {
@@ -14,13 +16,15 @@ public class SteamStatsAndAchievements  {
 		ACH_TRAVEL_FAR_SINGLE,
 	    };
 
+    
+
 	private Achievement_t[] m_Achievements = new Achievement_t[] {
 		new Achievement_t(Achievement.ACH_WIN_ONE_GAME, "Winner", ""),
 		new Achievement_t(Achievement.ACH_WIN_100_GAMES, "Champion", ""),
 		new Achievement_t(Achievement.ACH_TRAVEL_FAR_ACCUM, "Interstellar", ""),
 		new Achievement_t(Achievement.ACH_TRAVEL_FAR_SINGLE, "Orbiter", "")
 	    };
-
+    
 	// Our GameID
 	private CGameID m_GameID;
 
@@ -52,15 +56,14 @@ public class SteamStatsAndAchievements  {
     /// <summary>
     /// Default constructor, initializes callbacks...
     /// </summary>
-    public  SteamStatsAndAchievements() 
+    public SteamStatsAndAchievements()
     {
         //SteamManager.Init();
-		if (!SteamManager.Initialized)
-			return;
+        if (!SteamManager.Initialized)
+            return;
 
-		// Cache the GameID for use in the Callbacks
+        // Cache the GameID for use in the Callbacks
         m_GameID = new CGameID(SteamUtils.GetAppID());//SteamUtils.GetAppID());
-        Console.WriteLine("SteamUtils.GetAppID(): " + SteamUtils.GetAppID());
 
 		m_UserStatsReceived = Callback<UserStatsReceived_t>.Create(OnUserStatsReceived);
 		m_UserStatsStored = Callback<UserStatsStored_t>.Create(OnUserStatsStored);
@@ -72,6 +75,26 @@ public class SteamStatsAndAchievements  {
         Console.WriteLine("SteamStatsAndAchievements Initialized GameID: " + m_GameID);
 	}
 
+    public void requestCurrentStats()
+    {
+        if (!SteamManager.Initialized)
+			return;
+
+        //Only requests the stats 1 time.
+        if (!m_bRequestedStats)
+        {
+            // Is Steam Loaded? if no, can't get stats, done
+            if (!SteamManager.Initialized)
+            {
+                m_bRequestedStats = true;
+                return;
+            }
+
+            // If yes, request our stats
+            bool bSuccess = SteamUserStats.RequestCurrentStats();
+        }
+    }
+
     /// <summary>
     /// Reads and write stats... Syncs stats and rewards with Steam.
     /// </summary>
@@ -79,6 +102,7 @@ public class SteamStatsAndAchievements  {
 		if (!SteamManager.Initialized)
 			return;
 
+        //Only requests the stats 1 time.
 		if (!m_bRequestedStats) {
 			// Is Steam Loaded? if no, can't get stats, done
 			if (!SteamManager.Initialized) {
@@ -137,13 +161,16 @@ public class SteamStatsAndAchievements  {
     /// <summary>
     /// Do not call this function too often. Normally and the end of the round.
     /// </summary>
-    public void sendStats()
+    public void sendStats(Yargis.Player tempPlayer, Yargis.GameSession tempSession)
     {
         m_bStoreStats = true;
-        storeStats();
+        storeStats(tempPlayer, tempSession);
     }
 
-    private void storeStats()
+    /// <summary>
+    /// Transmits all of the stats to Steam.
+    /// </summary>
+    private void storeStats(Yargis.Player tempPlayer, Yargis.GameSession tempSession)
     {
         if (!SteamManager.Initialized)
             return;
@@ -153,21 +180,33 @@ public class SteamStatsAndAchievements  {
         {
             // already set any achievements in UnlockAchievement
             // set stats
-            SteamUserStats.SetStat("NumGames", m_nTotalGamesPlayed);
-            SteamUserStats.SetStat("NumWins", m_nTotalNumWins);
-            SteamUserStats.SetStat("NumLosses", m_nTotalNumLosses);
-            SteamUserStats.SetStat("FeetTraveled", m_flTotalFeetTraveled);
-            SteamUserStats.SetStat("MaxFeetTraveled", m_flMaxFeetTraveled);
-            // Update average feet / second stat
-            SteamUserStats.UpdateAvgRateStat("AverageSpeed", m_flGameFeetTraveled, m_flGameDurationSeconds);
-            // The averaged result is calculated for us
-            SteamUserStats.GetStat("AverageSpeed", out m_flAverageSpeed);
+            //tempSession
+
+            SteamUserStats.SetStat("Money", (float)tempPlayer.Money);
+            SteamUserStats.SetStat("GamesWon", tempPlayer.universalScores.RoundsWon);
+            SteamUserStats.SetStat("GamesLost", tempPlayer.universalScores.RoundsLost);
+            //SteamUserStats.SetStat("FeetTraveled", m_flTotalFeetTraveled);
+            SteamUserStats.SetStat("Kills", tempPlayer.universalScores.Kills);
+            SteamUserStats.SetStat("Deaths", tempPlayer.universalScores.Deaths);
+            SteamUserStats.SetStat("K:D Ratio", tempPlayer.universalScores.KDRatio);
+            SteamUserStats.SetStat("Experience", tempPlayer.ExpPoints);
+            SteamUserStats.SetStat("Level", tempPlayer.Level);
+            SteamUserStats.SetStat("Coins", tempPlayer.universalScores.Coins);
+            SteamUserStats.SetStat("Cows Rescued", tempPlayer.universalScores.CowsRescued);
+            SteamUserStats.SetStat("MultiplayerRounds", tempPlayer.universalScores.MultiPlayerRounds);
+            SteamUserStats.SetStat("CTFRounds", tempPlayer.universalScores.CTFRounds);
+            SteamUserStats.SetStat("CoOp Rounds", tempPlayer.universalScores.CoOpRounds);
+            SteamUserStats.SetStat("Battle Rounds", tempPlayer.universalScores.BattleRounds);
+
+            if (tempPlayer.CampaignData.IsLevelComplete(29)) 
+            {
+                SteamUserStats.SetAchievement("FinishSinglePlayer");
+            }
 
             bool bSuccess = SteamUserStats.StoreStats();
             // If this failed, we never sent anything to the server, try
             // again later.
             m_bStoreStats = !bSuccess;
-
         }
        
     }
@@ -275,16 +314,93 @@ public class SteamStatsAndAchievements  {
                     {
 						Console.WriteLine("SteamUserStats.GetAchievement failed for Achievement " + ach.m_eAchievementID + "\nIs it registered in the Steam Partner site?");
 					}
-				}
+                }
 
-				// load stats
-				SteamUserStats.GetStat("NumGames", out m_nTotalGamesPlayed);
-				SteamUserStats.GetStat("NumWins", out m_nTotalNumWins);
-				SteamUserStats.GetStat("NumLosses", out m_nTotalNumLosses);
-				SteamUserStats.GetStat("FeetTraveled", out m_flTotalFeetTraveled);
-				SteamUserStats.GetStat("MaxFeetTraveled", out m_flMaxFeetTraveled);
-				SteamUserStats.GetStat("AverageSpeed", out m_flAverageSpeed);
-			}
+                #region Load Stats
+                //float tempfloat;    // These temps are used because  SteamUserStats.GetStat
+                //int tempint;        // does not want to use temp.currentValue as an out parameter
+                //Player tempPlayer = Global.ActivePlayer;
+
+                ////Rounds Won
+                //var temp = tempPlayer.universalScores.Objectives.GetObjectiveByName("Rounds Won");
+                //if (temp != null)
+                //{ 
+                //    SteamUserStats.GetStat("GamesWon", out tempint);
+                //    temp.CurrentValue = tempint;
+                //}
+                ////FeetTravelled
+                ////var temp = tempPlayer.universalScores.Objectives.GetObjectiveByName("Feet Travelled");
+                ////if (temp != null)
+                ////{
+                ////    SteamUserStats.GetStat("FeetTravelled", out tempfloat);
+                ////    temp.CurrentValue = tempfloat;
+                ////}
+                ////Kills
+                //temp = tempPlayer.universalScores.Objectives.GetObjectiveByName("Kills");
+                //if (temp != null)
+                //{
+                //    SteamUserStats.GetStat("Kills", out tempint);
+                //    temp.CurrentValue = tempint;
+                //}
+                ////Deaths
+                //temp = tempPlayer.universalScores.Objectives.GetObjectiveByName("Deaths");
+                //if (temp != null)
+                //{
+                //    SteamUserStats.GetStat("Deaths", out tempint);
+                //    temp.CurrentValue = tempint;
+                //}
+                ////Money
+                //if(SteamUserStats.GetStat("Money", out tempfloat))
+                //    tempPlayer.Money = (decimal)tempfloat;
+                ////Experience
+                //if(SteamUserStats.GetStat("Experience", out tempint))
+                //    tempPlayer.PermRewards.xp = tempint;
+                ////Level
+                //SteamUserStats.GetStat("Level", out tempPlayer.Level);
+                ////Coins
+                //temp = tempPlayer.universalScores.Objectives.GetObjectiveByName("Coin");
+                //if (temp != null)
+                //{
+                //    SteamUserStats.GetStat("Coins", out tempint);
+                //    temp.CurrentValue = tempint;
+                //}
+                ////Cows Rescued
+                //temp = tempPlayer.universalScores.Objectives.GetObjectiveByName("Cattle Rescued");
+                //if (temp != null)
+                //{
+                //    SteamUserStats.GetStat("Cows Rescued", out tempint);
+                //    temp.CurrentValue = tempint;
+                //}
+                ////Multiplayer Rounds
+                //temp = tempPlayer.universalScores.Objectives.GetObjectiveByName("Total Multiplayer Rounds");
+                //if (temp != null)
+                //{
+                //    SteamUserStats.GetStat("MultiplayerRounds", out tempint);
+                //    temp.CurrentValue = tempint;
+                //}
+                ////CTF Rounds
+                //temp = tempPlayer.universalScores.Objectives.GetObjectiveByName("CTF Rounds");
+                //if (temp != null)
+                //{
+                //    SteamUserStats.GetStat("CTFRounds", out tempint);
+                //    temp.CurrentValue = tempint;
+                //}
+                ////Co-Op Rounds
+                //temp = tempPlayer.universalScores.Objectives.GetObjectiveByName("Co-Op Rounds");
+                //if (temp != null)
+                //{
+                //    SteamUserStats.GetStat("CoOp Rounds", out tempint);
+                //    temp.CurrentValue = tempint;
+                //}
+                ////Battle Rounds
+                //temp = tempPlayer.universalScores.Objectives.GetObjectiveByName("Battle Rounds");
+                //if (temp != null)
+                //{
+                //    SteamUserStats.GetStat("Battle Rounds", out tempint);
+                //    temp.CurrentValue = tempint;
+                //}
+                #endregion
+            }
 			else 
             {
 				Console.WriteLine("RequestStats - failed, " + pCallback.m_eResult);
@@ -392,3 +508,4 @@ public class SteamStatsAndAchievements  {
 		}
 	}
 }
+#endif

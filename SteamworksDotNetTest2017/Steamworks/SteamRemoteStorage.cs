@@ -1,4 +1,4 @@
-﻿
+﻿#if STEAMCLIENT
 using System.Collections;
 using Steamworks;
 using System;
@@ -565,9 +565,10 @@ public class SteamRemoteStorageTest
         Console.WriteLine("[" + RemoteStoragePublishedFileSubscribed_t.k_iCallback + " - RemoteStoragePublishedFileSubscribed] - " + pCallback.m_nPublishedFileId + " -- " + pCallback.m_nAppID);
         if (pCallback.m_nAppID == SteamUtils.GetAppID())
         {
-            PublishedFileId_t[] tempArray = new PublishedFileId_t[1];
-            tempArray[0]=pCallback.m_nPublishedFileId;
-            SteamUGC.GetSubscribedItems(tempArray, (uint)tempArray.Length);
+            //PublishedFileId_t[] tempArray = new PublishedFileId_t[1];
+            //tempArray[0]=pCallback.m_nPublishedFileId;
+            //SteamUGC.GetSubscribedItems(tempArray, (uint)tempArray.Length);
+            YargisSteam.CheckSubscribedItems(Yargis.YargisGame.Instance.MultiplayerLevelList, Yargis.YargisGame.Instance.MultiplayerLevelList);
         }
     }
 
@@ -616,3 +617,4 @@ public class SteamRemoteStorageTest
         Console.WriteLine("[" + RemoteStoragePublishedFileUpdated_t.k_iCallback + " - RemoteStoragePublishedFileUpdated] - " + pCallback.m_nPublishedFileId + " -- " + pCallback.m_nAppID + " -- " + pCallback.m_hFile);
     }
 }
+#endif

@@ -1,8 +1,10 @@
-﻿
+﻿#if STEAMCLIENT
 using System.Collections;
 using Steamworks;
 using System;
 using System.Collections.Generic;
+using Yargis;
+
 
 /// <summary>
 /// Used for Workshop item upload and download. https://partner.steamgames.com/documentation/ugc
@@ -10,7 +12,7 @@ using System.Collections.Generic;
 public class SteamUGCTest
 {
     private UGCQueryHandle_t m_UGCQueryHandle;
-    private PublishedFileId_t m_PublishedFileId;
+    public PublishedFileId_t m_PublishedFileId;
     public UGCUpdateHandle_t m_UGCUpdateHandle;
 
     protected Callback<ItemInstalled_t> m_ItemInstalled;
@@ -43,8 +45,10 @@ public class SteamUGCTest
         //PublishedFileId_t temp = getID(SteamUtils.GetAppID());
     }
 
+
+
     /// <summary>
-    /// Use RequestUGCDetails to request additional information regarding each subscribed item. That will return a SteamUGCRequestUGCDetailsResult_t object that contains a m_details.m_eResult property that will tell you what's up with that item. If the result of it is anything other than EResult.k_EResultOK , I ignore the item and don't display it the UI.  NOT SURE ABOUT THIS: Accessing the ISteamUGC API. The API must be accessed through the pointer that is returned from SteamUGC().
+    /// Not sure if this is needed. Accessing the ISteamUGC API. The API must be accessed through the pointer that is returned from SteamUGC(). 
     /// </summary>
     public SteamAPICall_t getID(PublishedFileId_t workshopItemID)
     {
@@ -146,37 +150,12 @@ public class SteamUGCTest
         Console.WriteLine("SteamUGC.SendQueryUGCRequest(" + m_UGCQueryHandle + ") : " + handle);
     }
 
-    //public string querySubscribedItemPath(PublishedFileId_t publisherID)
-    //{
-    //    // UGCQueryHandle_t CreateQueryAllUGCRequest( EUGCQuery eQueryType, EUGCMatchingUGCType eMatchingeMatchingUGCTypeFileType, AppId_t nCreatorAppID, AppId_t nConsumerAppID, uint32 unPage )          //Use this method when querying for all matching UGC.
-
-    //    m_UGCQueryHandle = SteamUGC.CreateQueryUserUGCRequest(SteamUser.GetSteamID().GetAccountID(), EUserUGCList.k_EUserUGCList_Subscribed, EUGCMatchingUGCType.k_EUGCMatchingUGCType_UsableInGame, EUserUGCListSortOrder.k_EUserUGCListSortOrder_CreationOrderDesc, AppId_t.Invalid, SteamUtils.GetAppID(), 1);
-    //    //SteamUGC.AddRequiredTag(m_UGCQueryHandle, tag);
-    //    SteamAPICall_t handle = SteamUGC.SendQueryUGCRequest(m_UGCQueryHandle);
-    //    OnSteamUGCQueryCompletedCallResult.Set(handle);
-    //    Console.WriteLine("SteamUGC.SendQueryUGCRequest(" + m_UGCQueryHandle + ") : " + handle);
-    //    return "BLKSJDLFKJDSKLFJDSKLJFLDSKJFKLDSJFKLDJFKLDSFJDSKLFDSF";
-    //}
-
     public void GetSubscribedItems()
     {
         uint number = SteamUGC.GetNumSubscribedItems();
         PublishedFileId_t[] items = new PublishedFileId_t[number];
         SteamUGC.GetSubscribedItems(items, number);
-        for (uint x = 0; x < number - 1; x++)
-        {
-            //bool isInstalled =  ((EItemState)SteamUGC.GetItemState(items[x]))==EItemState.k_EItemStateInstalled;  //not implemented in SteamWorks .NET apparently :(
-            //SteamUGC.GetItemInstallInfo(items[x], out punSizeOnDisk, out pchFolder, out cchFolderSize, out punTimeStamp);
-            Console.Write("[" + x + "]: " + items[x] + ", ");
-        }
-        Console.WriteLine("");
-    }
-
-    private static bool isItemInstalled(ItemInstalled_t pCallback, uint folderSize, out ulong sizeOnDisk, out string folder, out uint timeStamp)
-    {
-        bool isInstalled;
-        isInstalled = SteamUGC.GetItemInstallInfo(pCallback.m_nPublishedFileId, out sizeOnDisk, out folder, folderSize, out timeStamp);
-        return isInstalled;
+        Console.WriteLine("items[" + (number-1) + "]: " + items[number-1]);
     }
 
     public void RenderOnGUI()
@@ -411,17 +390,6 @@ public class SteamUGCTest
 
         m_PublishedFileId = pCallback.m_nPublishedFileId;
 
-        //TODO: ADD GAME LOGIC HERE<<<<<<<<<<<<<<<<<<<<<<<<
-        IList<string> tags = new List<string>();
-        tags.Add("Levels");
-
-        UGCUpdateHandle_t UpdateHandle = SteamManager.SteamUGCworkshop.registerFileInfoOrUpdate(m_PublishedFileId, "Test workshop map.", "this is very cool!", ERemoteStoragePublishedFileVisibility.k_ERemoteStoragePublishedFileVisibilityFriendsOnly,
-                tags, AppDomain.CurrentDomain.BaseDirectory + @"TestUpload\", AppDomain.CurrentDomain.BaseDirectory +  @"TestUpload\Christmas Party.jpg");
-
-        SteamAPICall_t SteamAPICall_t_handle = SteamManager.SteamUGCworkshop.sendFileOrUpdate(UpdateHandle, "Custom note.");
-        Console.WriteLine("sendFileOrUpdate (SteamAPICall_t_handle): " + SteamAPICall_t_handle);
-
-        System.Diagnostics.Process.Start("steam://url/CommunityFilePage/" + m_PublishedFileId);
     }
 
     void OnSubmitItemUpdateResult(SubmitItemUpdateResult_t pCallback, bool bIOFailure)
@@ -442,14 +410,13 @@ public class SteamUGCTest
             string folder;
             uint folderSize = 260;
             uint timeStamp;
-            bool isInstalled = isItemInstalled(pCallback, folderSize, out sizeOnDisk, out folder, out timeStamp);
-            Console.WriteLine("GetItemInstallInfo installed(" + isInstalled  + "): " + sizeOnDisk + " -- " + folder + " -- " + folderSize + " -- " + new DateTime(timeStamp));
+            SteamUGC.GetItemInstallInfo(pCallback.m_nPublishedFileId, out sizeOnDisk, out folder, folderSize, out timeStamp);
+            Console.WriteLine("GetItemInstallInfo: " + sizeOnDisk + " -- " + folder + " -- " + folderSize + " -- " + new DateTime(timeStamp));
             //NOT IMPLEMENTED OR NEEDED RIGHT NOW: SteamUGC.DownloadItem(pCallback.m_nPublishedFileId, true);
 
+            YargisSteam.CheckSubscribedItems(YargisGame.Instance.MultiplayerLevelList, YargisGame.Instance.MultiplayerLevelList);
         }
     }
-
-
 
     //void OnDownloadItemResult(DownloadItemResult_t DownloadItemResult_t)
     //{
@@ -469,3 +436,4 @@ public class SteamUGCTest
         m_PublishedFileId = pCallback.m_nPublishedFileId;
     }
 }
+#endif

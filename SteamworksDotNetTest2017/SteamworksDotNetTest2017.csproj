@@ -61,6 +61,7 @@
     <Compile Include="SteamworksDotNetTest.cs" />
     <Compile Include="Steamworks\SteamAntiCheat.cs" />
     <Compile Include="Steamworks\SteamFriends.cs" />
+    <Compile Include="Steamworks\SteamLobby.cs" />
     <Compile Include="Steamworks\SteamManager.cs" />
     <Compile Include="Steamworks\SteamMatchmakingServersTest.cs" />
     <Compile Include="Steamworks\SteamMatchmakingTest.cs" />
@@ -68,6 +69,7 @@
     <Compile Include="Steamworks\SteamRemoteStorage.cs" />
     <Compile Include="Steamworks\SteamStatsAndAchievements.cs" />
     <Compile Include="Steamworks\SteamUGC.cs" />
+    <Compile Include="Steamworks\YargisSteam.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>

@@ -3,13 +3,12 @@ using System.Collections;
 using Steamworks;
 using System;
 using System.Net;
-using SteamworksDotNetTest2017;
 
 public class SteamMatchmakingTest
 {
-    public string debugString = "";
-
     public static CSteamID m_Lobby;
+
+    public static CSteamID joinedLobby;
 
     protected Callback<FavoritesListChanged_t> m_FavoritesListChanged;
     protected Callback<LobbyInvite_t> m_LobbyInvite;
@@ -62,7 +61,7 @@ public class SteamMatchmakingTest
             bool reasult = SteamMatchmaking.SetLobbyJoinable(m_Lobby, true);
             Console.WriteLine("SteamMatchmaking.SetLobbyJoinable(" + m_Lobby + ", true) : " + reasult);
             bool reasult2 = SteamMatchmaking.SetLobbyType(m_Lobby, ELobbyType.k_ELobbyTypePublic);
-            SteamMatchmaking.JoinLobby(m_Lobby);
+            //SteamMatchmaking.JoinLobby(m_Lobby);
         }
     }
 
@@ -96,8 +95,7 @@ public class SteamMatchmakingTest
         CSteamID SteamIDGameServer;
         bool ret = SteamMatchmaking.GetLobbyGameServer(m_Lobby, out GameServerIP, out GameServerPort, out SteamIDGameServer);
         Console.WriteLine("GetLobbyGameServer(m_Lobby, out GameServerIP, out GameServerPort, out SteamIDGameServer) : " + ret + " -- " + GameServerIP + " -- " + GameServerPort + " -- " + SteamIDGameServer);
-        SteamworksDotNetTest.debugString = "GetLobbyGameServer: " + m_Lobby + " -- " + GameServerIP + " -- " + GameServerPort + " -- " + SteamIDGameServer + "\n" + SteamworksDotNetTest.debugString;
-        
+        //SteamworksDotNetTest.Game1.debugString += "GetLobbyGameServer: " + m_Lobby + " -- " + GameServerIP + " -- " + GameServerPort + " -- " + SteamIDGameServer + "\n";
         return new gameServer(m_Lobby, GameServerIP, GameServerPort, SteamIDGameServer);
     }
 
@@ -333,9 +331,37 @@ public class SteamMatchmakingTest
     void OnLobbyEnter(LobbyEnter_t pCallback)
     {
         Console.WriteLine("[" + LobbyEnter_t.k_iCallback + " - LobbyEnter] - " + pCallback.m_ulSteamIDLobby + " -- " + pCallback.m_rgfChatPermissions + " -- " + pCallback.m_bLocked + " -- " + pCallback.m_EChatRoomEnterResponse);
+        //TODO: We can remove the log entry once we get lobby enters working by clicking on a user and telling it to join game
+        YargisSteam.Log += "LobbyEnter: " + LobbyEnter_t.k_iCallback + " - LobbyEnter] - " + pCallback.m_ulSteamIDLobby + "\n";
+        m_Lobby = (CSteamID)pCallback.m_ulSteamIDLobby;
+        if (SteamFriendsA.waitingForLobbyJoin == true)
+        {
+            SteamMatchmakingTest.gameServer tempServer = SteamManager.SteamMatchmakingClass.getLobbyInfo(m_Lobby);  //(CSteamID)pCallback.m_steamIDLobby.m_SteamID   //pCallback.m_steamIDLobby
+            Console.WriteLine("[" + GameLobbyJoinRequested_t.k_iCallback + " - SERVER INFO: IP] - " + tempServer.GameServerIP + " -- Port: " + tempServer.GameServerPort);
+            if (tempServer.GameServerIP > 0)
+            {
+                YargisSteam.ChangeServer(tempServer.GameServerIP, tempServer.GameServerPort, "");
+                SteamFriendsA.waitingForLobbyJoin = false;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Used when a lobby join is manually received and game is being started afterwards.
+    /// </summary>
+    /// <param name="lobby"></param>
+    public static void forceJoinLobbyChangeServer(string lobby)
+    {
+        ulong vOut = Convert.ToUInt64(lobby);
+        m_Lobby = (CSteamID)vOut;
         SteamMatchmakingTest.gameServer tempServer = SteamManager.SteamMatchmakingClass.getLobbyInfo(m_Lobby);  //(CSteamID)pCallback.m_steamIDLobby.m_SteamID   //pCallback.m_steamIDLobby
         Console.WriteLine("[" + GameLobbyJoinRequested_t.k_iCallback + " - SERVER INFO: IP] - " + tempServer.GameServerIP + " -- Port: " + tempServer.GameServerPort);
-        m_Lobby = (CSteamID)pCallback.m_ulSteamIDLobby;
+        YargisSteam.Log += "[" + GameLobbyJoinRequested_t.k_iCallback + " - SERVER INFO: IP] - " + tempServer.GameServerIP + " -- Port: " + tempServer.GameServerPort + "\n";
+        if (tempServer.GameServerIP > 0)
+        {
+            YargisSteam.ChangeServer(tempServer.GameServerIP, tempServer.GameServerPort, "");
+            SteamFriendsA.waitingForLobbyJoin = false;
+        }
     }
 
     void OnLobbyEnter(LobbyEnter_t pCallback, bool bIOFailure)
@@ -367,11 +393,18 @@ public class SteamMatchmakingTest
     void OnLobbyGameCreated(LobbyGameCreated_t pCallback)
     {
         Console.WriteLine("[" + LobbyGameCreated_t.k_iCallback + " - LobbyGameCreated] - " + pCallback.m_ulSteamIDLobby + " -- " + pCallback.m_ulSteamIDGameServer + " -- " + pCallback.m_unIP + " -- " + pCallback.m_usPort);
-        SteamworksDotNetTest.lobbyHandle = (CSteamID)pCallback.m_ulSteamIDLobby; //getLobbyInfo((CSteamID)pCallback.m_ulSteamIDLobby);
-        SteamworksDotNetTest.debugString = "[" + LobbyGameCreated_t.k_iCallback + " - LobbyGameCreated] - " + pCallback.m_ulSteamIDLobby + " -- " + pCallback.m_ulSteamIDGameServer + " -- " + pCallback.m_unIP + " -- " + pCallback.m_usPort + "\n" + debugString;
+        //SteamworksDotNetTest.Game1.lobbyHandle = (CSteamID)pCallback.m_ulSteamIDLobby; //getLobbyInfo((CSteamID)pCallback.m_ulSteamIDLobby);
+        //SteamworksDotNetTest.Game1.debugString += "[" + LobbyGameCreated_t.k_iCallback + " - LobbyGameCreated] - " + pCallback.m_ulSteamIDLobby + " -- " + pCallback.m_ulSteamIDGameServer + " -- " + pCallback.m_unIP + " -- " + pCallback.m_usPort + "\n";
         //SteamMatchmakingTest.gameServer tempServer1 = SteamManager.SteamMatchmakingClass.getLobbyInfo((CSteamID)pCallback.m_ulSteamIDLobby);  //(CSteamID)pCallback.m_steamIDLobby.m_SteamID   //pCallback.m_steamIDLobby
-        SteamMatchmakingTest.gameServer tempServer2 = SteamManager.SteamMatchmakingClass.getLobbyInfo((CSteamID)pCallback.m_ulSteamIDLobby);  //(CSteamID)pCallback.m_steamIDLobby.m_SteamID   //pCallback.m_steamIDLobby
-        this.joinLobby(m_Lobby);
+        //SteamMatchmakingTest.gameServer tempServer2 = SteamManager.SteamMatchmakingClass.getLobbyInfo((CSteamID)pCallback.m_ulSteamIDLobby);  //(CSteamID)pCallback.m_steamIDLobby.m_SteamID   //pCallback.m_steamIDLobby
+        
+        //Yargis.GUI.Screens.ConnectionsScreen.currentSteamServer.password = pwd;
+        if (m_Lobby != joinedLobby)
+        {
+            this.setGameServerSettings(m_Lobby, Yargis.GUI.Screens.ConnectionsScreen.currentSteamServer.IpAddress, Yargis.GUI.Screens.ConnectionsScreen.currentSteamServer.port);
+            this.joinLobby(m_Lobby);
+            joinedLobby = m_Lobby;
+        }
     }
 
     void OnLobbyMatchList(LobbyMatchList_t pCallback, bool bIOFailure)
@@ -388,7 +421,8 @@ public class SteamMatchmakingTest
     {
         Console.WriteLine("[" + LobbyCreated_t.k_iCallback + " - LobbyCreated] - " + pCallback.m_eResult + " -- " + pCallback.m_ulSteamIDLobby);
         m_Lobby = (CSteamID)pCallback.m_ulSteamIDLobby;
-        this.setGameServerSettings(m_Lobby, "52.27.130.37", "1244");
+        this.setGameServerSettings(m_Lobby, Yargis.GUI.Screens.ConnectionsScreen.currentSteamServer.IpAddress, Yargis.GUI.Screens.ConnectionsScreen.currentSteamServer.port);
+        
     }
 
     void OnFavoritesListAccountsUpdated(FavoritesListAccountsUpdated_t pCallback)

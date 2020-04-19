@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using Steamworks;
-//using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Graphics;
 
 
 
@@ -13,10 +12,14 @@ using Steamworks;
         private CSteamID m_Friend;
         private CSteamID m_Clan;
         private CSteamID m_CoPlayFriend;
-        //private Texture2D m_SmallAvatar;
-        //private Texture2D m_MediumAvatar;
-        //private Texture2D m_LargeAvatar;
-        //private CSteamID theLobby;
+        private Texture2D m_SmallAvatar;
+        private Texture2D m_MediumAvatar;
+        private Texture2D m_LargeAvatar;
+
+        /// <summary>
+        /// Tracks whether a gameLobby join is in progress.
+        /// </summary>
+        public static bool waitingForLobbyJoin = false;
 
         protected Callback<PersonaStateChange_t> m_PersonaStateChange;
         protected Callback<GameOverlayActivated_t> m_GameOverlayActivated;
@@ -437,17 +440,20 @@ using Steamworks;
 
         void OnGameServerChangeRequested(GameServerChangeRequested_t pCallback)
         {
-            Console.BackgroundColor = ConsoleColor.DarkYellow;
             Console.WriteLine("[" + GameServerChangeRequested_t.k_iCallback + " - GameServerChangeRequested] - " + pCallback.m_rgchServer + " -- " + pCallback.m_rgchPassword);
+
+            string[] tempSplit = pCallback.m_rgchServer.Split(':');
+            YargisSteam.ChangeServer(tempSplit[0], tempSplit[1], pCallback.m_rgchPassword);
         }
 
         void OnGameLobbyJoinRequested(GameLobbyJoinRequested_t pCallback)
         {
-        Console.BackgroundColor = ConsoleColor.DarkGreen;
-        Console.WriteLine("[" + GameLobbyJoinRequested_t.k_iCallback + " - GameLobbyJoinRequested] - " + pCallback.m_steamIDLobby + " -- " + pCallback.m_steamIDFriend);
+            //SteamworksDotNetTest.Game1.backgroundColor = Microsoft.Xna.Framework.Color.Green;
+            Console.WriteLine("[" + GameLobbyJoinRequested_t.k_iCallback + " - GameLobbyJoinRequested] - " + pCallback.m_steamIDLobby + " -- " + pCallback.m_steamIDFriend);
             SteamMatchmakingTest.m_Lobby = pCallback.m_steamIDLobby;
 
             SteamMatchmaking.JoinLobby(pCallback.m_steamIDLobby);  //Joins the lobby. VERY IMPORTANT :)
+            waitingForLobbyJoin = true;
         }
 
         void OnAvatarImageLoaded(AvatarImageLoaded_t pCallback)
