@@ -3,7 +3,7 @@ using System.Collections;
 using Steamworks;
 using System;
 using System.Collections.Generic;
-using Yargis;
+
 
 
 /// <summary>
@@ -24,6 +24,9 @@ public class SteamUGCTest
 
     private CallResult<RemoteStorageSubscribePublishedFileResult_t> OnRemoteStorageSubscribePublishedFileResultCallResult;
     private CallResult<RemoteStorageUnsubscribePublishedFileResult_t> OnRemoteStorageUnsubscribePublishedFileResultCallResult;
+
+    public delegate void CheckSubsribedItemsEventHandler();
+    public event CheckSubsribedItemsEventHandler OnItemSubscribeCheck;
 
     //private CallResult<SteamUGCRequestUGCDetailsResult_t> onDownloadItemCallResult;
 
@@ -347,8 +350,8 @@ public class SteamUGCTest
         }
 
         {
-            bool NeedsUpdate;
-            bool IsDownloading;
+            //bool NeedsUpdate;
+            //bool IsDownloading;
             ulong BytesDownloaded;
             ulong BytesTotal;  //bool ret = SteamUGC.GetItemUpdateInfo(m_PublishedFileId, out NeedsUpdate, out IsDownloading, out BytesDownloaded, out BytesTotal);
             bool ret = SteamUGC.GetItemDownloadInfo(m_PublishedFileId, out BytesDownloaded, out BytesTotal); //, out BytesDownloaded, out BytesTotal);
@@ -414,7 +417,9 @@ public class SteamUGCTest
             Console.WriteLine("GetItemInstallInfo: " + sizeOnDisk + " -- " + folder + " -- " + folderSize + " -- " + new DateTime(timeStamp));
             //NOT IMPLEMENTED OR NEEDED RIGHT NOW: SteamUGC.DownloadItem(pCallback.m_nPublishedFileId, true);
 
-            YargisSteam.CheckSubscribedItems(YargisGame.Instance.MultiplayerLevelList, YargisGame.Instance.MultiplayerLevelList);
+
+            if(OnItemSubscribeCheck != null)
+                OnItemSubscribeCheck(); // YargisSteam.CheckSubscribedItems(YargisGame.Instance.MultiplayerLevelList, YargisGame.Instance.MultiplayerLevelList);
         }
     }
 

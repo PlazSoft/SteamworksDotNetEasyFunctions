@@ -24,6 +24,9 @@ public class SteamMatchmakingTest
     private CallResult<LobbyMatchList_t> OnLobbyMatchListCallResult;
     private CallResult<LobbyCreated_t> OnLobbyCreatedCallResult;
 
+    public delegate void ServerChangeEventHandler(uint GameServerIP, uint GameServerPort, string password);
+    public event ServerChangeEventHandler OnChangeServer;
+
     public SteamMatchmakingTest()
     {
         m_FavoritesListChanged = Callback<FavoritesListChanged_t>.Create(OnFavoritesListChanged);
@@ -340,7 +343,9 @@ public class SteamMatchmakingTest
             Console.WriteLine("[" + GameLobbyJoinRequested_t.k_iCallback + " - SERVER INFO: IP] - " + tempServer.GameServerIP + " -- Port: " + tempServer.GameServerPort);
             if (tempServer.GameServerIP > 0)
             {
-                YargisSteam.ChangeServer(tempServer.GameServerIP, tempServer.GameServerPort, "");
+                if (OnChangeServer != null)
+                    OnChangeServer(tempServer.GameServerIP, tempServer.GameServerPort, "");
+                //YargisSteam.ChangeServer(tempServer.GameServerIP, tempServer.GameServerPort, "");
                 SteamFriendsA.waitingForLobbyJoin = false;
             }
         }
@@ -350,7 +355,7 @@ public class SteamMatchmakingTest
     /// Used when a lobby join is manually received and game is being started afterwards.
     /// </summary>
     /// <param name="lobby"></param>
-    public static void forceJoinLobbyChangeServer(string lobby)
+    public void forceJoinLobbyChangeServer(string lobby)
     {
         ulong vOut = Convert.ToUInt64(lobby);
         m_Lobby = (CSteamID)vOut;
@@ -359,7 +364,8 @@ public class SteamMatchmakingTest
         YargisSteam.Log += "[" + GameLobbyJoinRequested_t.k_iCallback + " - SERVER INFO: IP] - " + tempServer.GameServerIP + " -- Port: " + tempServer.GameServerPort + "\n";
         if (tempServer.GameServerIP > 0)
         {
-            YargisSteam.ChangeServer(tempServer.GameServerIP, tempServer.GameServerPort, "");
+            if (OnChangeServer != null)
+                OnChangeServer(tempServer.GameServerIP, tempServer.GameServerPort, "");//YargisSteam.ChangeServer(tempServer.GameServerIP, tempServer.GameServerPort, "");
             SteamFriendsA.waitingForLobbyJoin = false;
         }
     }
@@ -389,7 +395,24 @@ public class SteamMatchmakingTest
         int ret = SteamMatchmaking.GetLobbyChatEntry((CSteamID)pCallback.m_ulSteamIDLobby, (int)pCallback.m_iChatID, out SteamIDUser, Data, Data.Length, out ChatEntryType);
         Console.WriteLine("SteamMatchmaking.GetLobbyChatEntry(" + (CSteamID)pCallback.m_ulSteamIDLobby + ", " + (int)pCallback.m_iChatID + ", out SteamIDUser, Data, Data.Length, out ChatEntryType) : " + ret + " -- " + SteamIDUser + " -- " + System.Text.Encoding.UTF8.GetString(Data) + " -- " + ChatEntryType);
     }
-
+    /// <summary>
+    /// careful of sign extension: convert to uint first; unsigned NetworkToHostOrder ought to be provided.
+    /// </summary>
+    public static long ToIntFromIPAddress(string addr)
+    {
+        return (long)(uint)IPAddress.NetworkToHostOrder(
+             (int)IPAddress.Parse(addr).Address);
+    }
+    /// <summary>
+    /// Converts a long into a string IP address.
+    /// </summary>
+    public static string ToIPAddress(long address)
+    {
+        return IPAddress.Parse(address.ToString()).ToString();
+        // This also works:
+        // return new IPAddress((uint) IPAddress.HostToNetworkOrder(
+        //    (int) address)).ToString();
+    }
     void OnLobbyGameCreated(LobbyGameCreated_t pCallback)
     {
         Console.WriteLine("[" + LobbyGameCreated_t.k_iCallback + " - LobbyGameCreated] - " + pCallback.m_ulSteamIDLobby + " -- " + pCallback.m_ulSteamIDGameServer + " -- " + pCallback.m_unIP + " -- " + pCallback.m_usPort);
@@ -401,7 +424,7 @@ public class SteamMatchmakingTest
         //Yargis.GUI.Screens.ConnectionsScreen.currentSteamServer.password = pwd;
         if (m_Lobby != joinedLobby)
         {
-            this.setGameServerSettings(m_Lobby, Yargis.GUI.Screens.ConnectionsScreen.currentSteamServer.IpAddress, Yargis.GUI.Screens.ConnectionsScreen.currentSteamServer.port);
+            this.setGameServerSettings(m_Lobby, ToIPAddress(pCallback.m_unIP), pCallback.m_usPort.ToString());
             this.joinLobby(m_Lobby);
             joinedLobby = m_Lobby;
         }
@@ -421,8 +444,8 @@ public class SteamMatchmakingTest
     {
         Console.WriteLine("[" + LobbyCreated_t.k_iCallback + " - LobbyCreated] - " + pCallback.m_eResult + " -- " + pCallback.m_ulSteamIDLobby);
         m_Lobby = (CSteamID)pCallback.m_ulSteamIDLobby;
-        this.setGameServerSettings(m_Lobby, Yargis.GUI.Screens.ConnectionsScreen.currentSteamServer.IpAddress, Yargis.GUI.Screens.ConnectionsScreen.currentSteamServer.port);
-        
+        this.setGameServerSettings(m_Lobby, "127.0.0.1", "5000");  //TODO: We need to upgrade this. m_unIP should be avilable in new version > https://partner.steamgames.com/doc/api/ISteamMatchmaking
+
     }
 
     void OnFavoritesListAccountsUpdated(FavoritesListAccountsUpdated_t pCallback)

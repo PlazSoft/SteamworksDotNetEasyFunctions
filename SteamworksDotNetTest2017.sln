@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.28307.1082
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteamworksDotNetTest2017", "SteamworksDotNetTest2017\SteamworksDotNetTest2017.csproj", "{C47A0632-1E7A-48A7-8064-562C90153AC0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameTest", "GameTest\GameTest.csproj", "{F505EC65-A324-4EA0-B72A-BFDCE1C3A14E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{C47A0632-1E7A-48A7-8064-562C90153AC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C47A0632-1E7A-48A7-8064-562C90153AC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C47A0632-1E7A-48A7-8064-562C90153AC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F505EC65-A324-4EA0-B72A-BFDCE1C3A14E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F505EC65-A324-4EA0-B72A-BFDCE1C3A14E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F505EC65-A324-4EA0-B72A-BFDCE1C3A14E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F505EC65-A324-4EA0-B72A-BFDCE1C3A14E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

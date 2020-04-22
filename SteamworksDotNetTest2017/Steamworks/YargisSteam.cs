@@ -13,9 +13,19 @@ namespace Steamworks
 {
     public class YargisSteam
     {
+        protected Callback<LobbyEnter_t> game_LobbyEnter;
+        // protected Callback m_cache_update_needed = Callback.Create(OnPersonaStateChange);
+        //public delegate void m_cache_update_needed(string reasults);
+        //public event EventHandler FooEvent = new EventHandler((e, a) => { });
+        public event EventHandler m_cache_update_needed;   
+
+        public static string _ipAddress = "";
+        private static string _port;
+        private static string _password;
+
         public static string Log = "***LOG START***\n";
 
-        public static void CheckSubscribedItems(Yargis.LevelCache _multiLevelCache, Yargis.LevelCache _singleLevelCache)
+        public void CheckSubscribedItems(string  _multiLevelCache = @"c:\", string _singleLevelCache = @"c:\", string StorageContainerPath = @"c:\")
         {
             if (!SteamManager.Initialized)
                 return;
@@ -30,33 +40,33 @@ namespace Steamworks
                 //{                }
                 //if (!isItemInstalledOnYargis(items[x], _multiLevelCache, _singleLevelCache))  //We can use SteamManager.SteamUGCworkshop.getID to verify if it is still valid.
                 //{ 
-                    ulong punSizeOnDisk;
-                    string pchFolder;
-                    uint cchFolderSize = 260;
-                    uint punTimeStamp;
-                    bool inReadyOnSteam = SteamUGC.GetItemInstallInfo(items[x], out punSizeOnDisk, out pchFolder,  cchFolderSize, out punTimeStamp);
-                    if (inReadyOnSteam)
-                        installFiles(pchFolder, _multiLevelCache);
+                ulong punSizeOnDisk;
+                string pchFolder;
+                uint cchFolderSize = 260;
+                uint punTimeStamp;
+                bool inReadyOnSteam = SteamUGC.GetItemInstallInfo(items[x], out punSizeOnDisk, out pchFolder, cchFolderSize, out punTimeStamp);
+                if (inReadyOnSteam)
+                    installFiles(pchFolder, _multiLevelCache,  StorageContainerPath);
                 //}
                 Console.Write("[" + x + "]: " + items[x] + ", ");
             }
             Console.WriteLine("");
         }
 
-        private static void installFiles(string steamTempFolder, Yargis.LevelCache _levelCache)
+        private void installFiles(string steamTempFolder, string _levelCache, string StorageContainerPath)
         {
             //Check multiplayer levels
-            installToCache(steamTempFolder, _levelCache, "*.ylv");
+            installToCache(steamTempFolder, _levelCache, "*.ylv",  StorageContainerPath);
 
             //Check singleplayer levels
-            installToCache(steamTempFolder, _levelCache, "*.yslv");
+            installToCache(steamTempFolder, _levelCache, "*.yslv",  StorageContainerPath);
         }
 
-        private static void installToCache(string steamTempFolder, Yargis.LevelCache _levelCache, string fileCards)
+        private void installToCache(string steamTempFolder, string _levelCache, string fileCards, string StorageContainerPath)
         {
-            if (steamTempFolder.Contains("530999920"))
-             {       }
-            
+            if (steamTempFolder.Contains("530999920"))  //test ID breakpoint
+            { }
+
             string[] files = null;
             try
             {
@@ -65,7 +75,7 @@ namespace Steamworks
             }
             catch
             {
-                Console.WriteLine("Invalid steamTempFolder!! " + steamTempFolder); 
+                Console.WriteLine("Invalid steamTempFolder!! " + steamTempFolder);
             }
 
             if (files != null)
@@ -75,15 +85,17 @@ namespace Steamworks
                     try
                     {
                         FileInfo file_info = new FileInfo(file);
-                        MoveWithReplace(steamTempFolder + @"\" + file_info.Name, Yargis.FileNames.StorageContainerPath + @"\" + file_info.Name);
+                        MoveWithReplace(steamTempFolder + @"\" + file_info.Name, StorageContainerPath + @"\" + file_info.Name);
                     }
                     catch
                     {
                         Console.WriteLine("Steam copy fail!! " + steamTempFolder);
                     }
                 }
-
-                _levelCache.Update(); 
+                if (m_cache_update_needed != null)
+                    m_cache_update_needed(this, new EventArgs());    
+                // updateReady = new m_cache_update_needed(@"done");
+                //updateReady?.Invoke("done"); //_levelCache.Update();
 
                 //Delete folder when done:
                 try
@@ -101,17 +113,17 @@ namespace Steamworks
         /// Checks publisher ID in Steam. Copies the file and adds to cache.
         /// </summary>
         /// <returns></returns>
-        private static bool isItemInstalledOnYargis(PublishedFileId_t publishedFileID, Yargis.LevelCache _multiLevelCache, Yargis.LevelCache _singleLevelCache)
+        private static bool isItemInstalledOnYargis() //TODO: we need to implement this //PublishedFileId_t publishedFileID, Yargis.LevelCache _multiLevelCache, Yargis.LevelCache _singleLevelCache)
         {
-            if (!_multiLevelCache.FindCachedLevelByPublishedID(publishedFileID) && !_singleLevelCache.FindCachedLevelByPublishedID(publishedFileID))
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-
+            //if (!_multiLevelCache.FindCachedLevelByPublishedID(publishedFileID) && !_singleLevelCache.FindCachedLevelByPublishedID(publishedFileID))
+            //{
+            //    return false;
+            //}
+            //else
+            //{
+            //    return true;
+            //}
+            return false;
         }
 
         public static void MoveWithReplace(string sourceFileName, string destFileName)
@@ -139,9 +151,9 @@ namespace Steamworks
 
 #if STEAMCLIENT || STEAMDEDICATED
             SteamManager.SteamMatchmakingClass.createLobbyGameServer(ELobbyType.k_ELobbyTypePublic);
-            Yargis.GUI.Screens.ConnectionsScreen.currentSteamServer.IpAddress = iPAddress;
-            Yargis.GUI.Screens.ConnectionsScreen.currentSteamServer.port = port;
-            Yargis.GUI.Screens.ConnectionsScreen.currentSteamServer.password = "";
+            _ipAddress = iPAddress;
+            _port = port;
+            _password = "";
 
 #endif
             //SteamLobby.createLobby(ELobbyType.k_ELobbyTypePublic, 512);
@@ -149,28 +161,28 @@ namespace Steamworks
 
 
 
-        /// <summary>
-        /// Host (IP), Port, and Password (you can leave blank "")
-        /// </summary>
-        /// <param name="host">Host (Server IP)</param>
-        /// <param name="port">Port number</param>
-        /// <param name="pwd">Password (you can leave blank "")</param>
-        internal static void ChangeServer(string host, string port, string pwd)
-        {
-            Yargis.GUI.Screens.ConnectionsScreen.Connect(host, port, pwd);
-        }
+        ///// <summary>
+        ///// Host (IP), Port, and Password (you can leave blank "")
+        ///// </summary>
+        ///// <param name="host">Host (Server IP)</param>
+        ///// <param name="port">Port number</param>
+        ///// <param name="pwd">Password (you can leave blank "")</param>
+        //internal static void ChangeServer(string host, string port, string pwd)
+        //{
+        //    Yargis.GUI.Screens.ConnectionsScreen.Connect(host, port, pwd);
+        //}
 
-        /// <summary>
-        /// Host (IP), Port, and Password (you can leave blank "")
-        /// </summary>
-        /// <param name="host">Host (Server IP)</param>
-        /// <param name="port"></param>
-        /// <param name="pwd">Password (you can leave blank "")</param>
-        internal static void ChangeServer(uint host, uint port, string pwd)
-        {
+        ///// <summary>
+        ///// Host (IP), Port, and Password (you can leave blank "")
+        ///// </summary>
+        ///// <param name="host">Host (Server IP)</param>
+        ///// <param name="port"></param>
+        ///// <param name="pwd">Password (you can leave blank "")</param>
+        //internal static void ChangeServer(uint host, uint port, string pwd)
+        //{
 
-            Yargis.GUI.Screens.ConnectionsScreen.Connect(SteamAntiCheat.ToAddr(host), port.ToString(), pwd);
-        }
+        //    Yargis.GUI.Screens.ConnectionsScreen.Connect(SteamAntiCheat.ToAddr(host), port.ToString(), pwd);
+        //}
 
         internal static List<uint> CheckDlcList()
         {
@@ -193,7 +205,7 @@ namespace Steamworks
             {
                 //public static SteamAPICall_t joinLobby(CSteamID steamIDLobby)   //{
                 ulong vOut = Convert.ToUInt64(lobby);
-               // CSteamID tempLobbyID = new CSteamID((ulong)lobby);
+                // CSteamID tempLobbyID = new CSteamID((ulong)lobby);
                 return SteamMatchmaking.JoinLobby((CSteamID)vOut);
             }
             catch
@@ -205,6 +217,6 @@ namespace Steamworks
 
 
     }
-    
+
 }
 #endif

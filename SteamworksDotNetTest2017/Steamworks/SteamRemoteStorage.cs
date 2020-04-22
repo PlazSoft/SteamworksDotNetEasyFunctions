@@ -8,6 +8,7 @@ using System;
 /// </summary>
 public class SteamRemoteStorageTest 
 {
+
     const string MESSAGE_FILE_NAME = "message.dat";
 
     private string m_Message = "";
@@ -48,6 +49,9 @@ public class SteamRemoteStorageTest
     private CallResult<RemoteStorageEnumerateUserSharedWorkshopFilesResult_t> RemoteStorageEnumerateUserSharedWorkshopFilesResult;
     private CallResult<RemoteStorageSetUserPublishedFileActionResult_t> RemoteStorageSetUserPublishedFileActionResult;
     private CallResult<RemoteStorageEnumeratePublishedFilesByUserActionResult_t> RemoteStorageEnumeratePublishedFilesByUserActionResult;
+
+    public delegate void CheckSubsribedItemsEventHandler();
+    public event CheckSubsribedItemsEventHandler OnItemSubscribeCheck;
 
     public SteamRemoteStorageTest()
     {
@@ -568,7 +572,8 @@ public class SteamRemoteStorageTest
             //PublishedFileId_t[] tempArray = new PublishedFileId_t[1];
             //tempArray[0]=pCallback.m_nPublishedFileId;
             //SteamUGC.GetSubscribedItems(tempArray, (uint)tempArray.Length);
-            YargisSteam.CheckSubscribedItems(Yargis.YargisGame.Instance.MultiplayerLevelList, Yargis.YargisGame.Instance.MultiplayerLevelList);
+
+            OnItemSubscribeCheck?.Invoke();//YargisSteam.CheckSubscribedItems();  //Yargis.YargisGame.Instance.MultiplayerLevelList, Yargis.YargisGame.Instance.MultiplayerLevelList
         }
     }
 

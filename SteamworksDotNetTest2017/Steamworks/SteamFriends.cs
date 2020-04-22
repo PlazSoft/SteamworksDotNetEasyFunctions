@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Steamworks;
-using Microsoft.Xna.Framework.Graphics;
+//using Microsoft.Xna.Framework.Graphics;
 
 
 
@@ -12,9 +12,9 @@ using Microsoft.Xna.Framework.Graphics;
         private CSteamID m_Friend;
         private CSteamID m_Clan;
         private CSteamID m_CoPlayFriend;
-        private Texture2D m_SmallAvatar;
-        private Texture2D m_MediumAvatar;
-        private Texture2D m_LargeAvatar;
+        //private Texture2D m_SmallAvatar;
+        //private Texture2D m_MediumAvatar;
+        //private Texture2D m_LargeAvatar;
 
         /// <summary>
         /// Tracks whether a gameLobby join is in progress.
@@ -443,7 +443,9 @@ using Microsoft.Xna.Framework.Graphics;
             Console.WriteLine("[" + GameServerChangeRequested_t.k_iCallback + " - GameServerChangeRequested] - " + pCallback.m_rgchServer + " -- " + pCallback.m_rgchPassword);
 
             string[] tempSplit = pCallback.m_rgchServer.Split(':');
+#if YARGIS
             YargisSteam.ChangeServer(tempSplit[0], tempSplit[1], pCallback.m_rgchPassword);
+#endif
         }
 
         void OnGameLobbyJoinRequested(GameLobbyJoinRequested_t pCallback)

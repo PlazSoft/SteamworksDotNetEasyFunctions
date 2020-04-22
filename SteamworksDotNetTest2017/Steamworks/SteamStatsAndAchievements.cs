@@ -1,9 +1,9 @@
-#if STEAMCLIENT
+//#if STEAMCLIENT
 using System.Collections;
 using System.ComponentModel;
 using Steamworks;
 using System;
-using Yargis;
+//using Yargis;
 
 
 // This is a port of StatsAndAchievements.cpp from SpaceWar, the official Steamworks Example.
@@ -158,58 +158,16 @@ public class SteamStatsAndAchievements  {
 	}
 
 
-    /// <summary>
-    /// Do not call this function too often. Normally and the end of the round.
-    /// </summary>
-    public void sendStats(Yargis.Player tempPlayer, Yargis.GameSession tempSession)
-    {
-        m_bStoreStats = true;
-        storeStats(tempPlayer, tempSession);
-    }
+    ///// <summary>
+    ///// Do not call this function too often. Normally and the end of the round.
+    ///// </summary>
+    //public void sendStats(Yargis.Player tempPlayer, Yargis.GameSession tempSession)
+    //{
+    //    //m_bStoreStats = true;
+    //    storeStats(tempPlayer, tempSession);
+    //}
 
-    /// <summary>
-    /// Transmits all of the stats to Steam.
-    /// </summary>
-    private void storeStats(Yargis.Player tempPlayer, Yargis.GameSession tempSession)
-    {
-        if (!SteamManager.Initialized)
-            return;
-
-        //Store stats in the Steam database if necessary
-        if (m_bStoreStats)
-        {
-            // already set any achievements in UnlockAchievement
-            // set stats
-            //tempSession
-
-            SteamUserStats.SetStat("Money", (float)tempPlayer.Money);
-            SteamUserStats.SetStat("GamesWon", tempPlayer.universalScores.RoundsWon);
-            SteamUserStats.SetStat("GamesLost", tempPlayer.universalScores.RoundsLost);
-            //SteamUserStats.SetStat("FeetTraveled", m_flTotalFeetTraveled);
-            SteamUserStats.SetStat("Kills", tempPlayer.universalScores.Kills);
-            SteamUserStats.SetStat("Deaths", tempPlayer.universalScores.Deaths);
-            SteamUserStats.SetStat("K:D Ratio", tempPlayer.universalScores.KDRatio);
-            SteamUserStats.SetStat("Experience", tempPlayer.ExpPoints);
-            SteamUserStats.SetStat("Level", tempPlayer.Level);
-            SteamUserStats.SetStat("Coins", tempPlayer.universalScores.Coins);
-            SteamUserStats.SetStat("Cows Rescued", tempPlayer.universalScores.CowsRescued);
-            SteamUserStats.SetStat("MultiplayerRounds", tempPlayer.universalScores.MultiPlayerRounds);
-            SteamUserStats.SetStat("CTFRounds", tempPlayer.universalScores.CTFRounds);
-            SteamUserStats.SetStat("CoOp Rounds", tempPlayer.universalScores.CoOpRounds);
-            SteamUserStats.SetStat("Battle Rounds", tempPlayer.universalScores.BattleRounds);
-
-            if (tempPlayer.CampaignData.IsLevelComplete(29)) 
-            {
-                SteamUserStats.SetAchievement("FinishSinglePlayer");
-            }
-
-            bool bSuccess = SteamUserStats.StoreStats();
-            // If this failed, we never sent anything to the server, try
-            // again later.
-            m_bStoreStats = !bSuccess;
-        }
-       
-    }
+  
 
 	//-----------------------------------------------------------------------------
 	// Purpose: Accumulate distance traveled
@@ -270,7 +228,7 @@ public class SteamStatsAndAchievements  {
 		SteamUserStats.SetAchievement(achievement.m_eAchievementID.ToString());
 
 		// Store stats end of frame
-		m_bStoreStats = true;
+		//m_bStoreStats = true;
 	}
 
     /// <summary>
@@ -316,7 +274,7 @@ public class SteamStatsAndAchievements  {
 					}
                 }
 
-                #region Load Stats
+#region Load Stats
                 //float tempfloat;    // These temps are used because  SteamUserStats.GetStat
                 //int tempint;        // does not want to use temp.currentValue as an out parameter
                 //Player tempPlayer = Global.ActivePlayer;
@@ -399,7 +357,7 @@ public class SteamStatsAndAchievements  {
                 //    SteamUserStats.GetStat("Battle Rounds", out tempint);
                 //    temp.CurrentValue = tempint;
                 //}
-                #endregion
+#endregion
             }
 			else 
             {
@@ -508,4 +466,4 @@ public class SteamStatsAndAchievements  {
 		}
 	}
 }
-#endif
+//#endif
