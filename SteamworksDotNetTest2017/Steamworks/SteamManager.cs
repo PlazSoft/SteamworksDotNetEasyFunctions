@@ -3,7 +3,7 @@ using System;
 using Steamworks;
 //using Microsoft.Xna.Framework;
 
-class SteamManager
+public class SteamManager
 {
     //SteamworksDotNetTest.Steamworks.MagicInit doInit = new SteamworksDotNetTest.Steamworks.MagicInit();
 
@@ -47,7 +47,7 @@ class SteamManager
     /// <summary>
     /// Initializes the SteamManager.
     /// </summary>
-    internal static void Init()
+    public static void Init()
     {
         Initialized = SteamAPI.Init();
         Console.WriteLine("Steam Init Finished");
@@ -64,7 +64,7 @@ class SteamManager
     /// <summary>
     /// RUn after isValidApp.
     /// </summary>
-    internal static void FinalInit()
+    public static void FinalInit()
     {
         statsAndAchievements = new SteamStatsAndAchievements();
         SteamUGCworkshop = new SteamUGCTest();
@@ -79,7 +79,7 @@ class SteamManager
     /// </summary>
     /// <param name="appId"></param>
     /// <returns></returns>
-    internal static bool isValidApp(uint appId)
+    public static bool isValidApp(uint appId)
     {
         bool theReturn = false;
         try
