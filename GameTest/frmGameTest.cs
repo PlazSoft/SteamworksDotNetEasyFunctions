@@ -9,20 +9,20 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+
 namespace GameTest
 {
-    public partial class Form1 : Form
+    public partial class frmGameTest : Form
     {
-        public Form1()
+        public const string newLine = "\r\n";
+        public frmGameTest()
         {
             InitializeComponent();
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            byte[] tempTicket = SteamManager.SteamAntiCheatClass.getTicket();
 
-            SteamManager.SteamAntiCheatClass.verifyTicket(tempTicket, SteamUser.GetSteamID());
             //IPAddress tempIp = new IPAddress(SteamManager.SteamAntiCheatClass.ToInt("192.168.1.44"));
 
 
@@ -49,13 +49,13 @@ namespace GameTest
 
             //SteamManager.SteamRemoteStorageTest = new SteamRemoteStorageTest();
 
-            SteamManager.ownsDLC(369040);
+  
         }
 
         private void btnUploadWorkshop_Click(object sender, EventArgs e)
         {
-
-        }
+            
+    }
 
         private void btnSendStats_Click(object sender, EventArgs e)
         {
@@ -105,6 +105,22 @@ namespace GameTest
             //}
 
 
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            Program.debugString += "DLC Ownership of 369040 : " +  SteamManager.ownsDLC(369040) + newLine;
+            Program.debugString += "DLC Ownership of 269040 : " + SteamManager.ownsDLC(269040) + newLine;
+            txtDebug.Text = Program.debugString;
+        }
+
+        private void btnVerifyAntiCheat_Click(object sender, EventArgs e)
+        {
+            byte[] tempTicket = SteamManager.SteamAntiCheatClass.getTicket();
+
+            string reasult = SteamManager.SteamAntiCheatClass.verifyTicket(tempTicket, SteamUser.GetSteamID()).ToString();
+            Program.debugString += "Anti Cheat Check : " + reasult + newLine;
+            txtDebug.Text = Program.debugString;
         }
     }
 }
