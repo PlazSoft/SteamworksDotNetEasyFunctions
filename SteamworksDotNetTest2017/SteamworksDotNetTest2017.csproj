@@ -71,6 +71,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SteamworksDotNetTest.cs" />
     <Compile Include="Steamworks\LevelCache.cs" />
+    <Compile Include="Steamworks\Steam.cs" />
     <Compile Include="Steamworks\SteamAntiCheat.cs" />
     <Compile Include="Steamworks\SteamFriends.cs" />
     <Compile Include="Steamworks\SteamLobby.cs" />

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -54,58 +55,62 @@ namespace GameTest
 
         private void btnUploadWorkshop_Click(object sender, EventArgs e)
         {
-            
-    }
 
-        private void btnSendStats_Click(object sender, EventArgs e)
-        {
-            storeStats();
+            PublishedFileId_t PublisherID = new PublishedFileId_t(); 
+            if (SteamManager.Initialized)
+            {
+                if (PublisherID == (Steamworks.PublishedFileId_t)0)
+                {
+                    SteamManager.SteamUGCworkshop.CreateWorkshopItem();
+                }
+                else
+                {
+                    string contentPath = Path.GetTempPath() + @"Yargis\" + PublisherID + @"\";
+                    if (!Directory.Exists(contentPath))
+                    {
+                        Directory.CreateDirectory(contentPath);
+                    }
+                    //file.SaveLevelAs(contentPath + Path.GetFileName(file.currentLevelFileName));
+                    List<string> tags = new List<string>();
+                    tags.Add("Levels");
+                    //FileStream stream = new FileStream(contentPath + @"LevelPreview.jpg", FileMode.Create);
+                    //level.Preview.LevelPreview.SaveAsJpeg(stream, level.Preview.LevelPreview.Width, level.Preview.LevelPreview.Height);
+                    //stream.Close();
+                    UGCUpdateHandle_t updateHandle = SteamManager.SteamUGCworkshop.registerFileInfoOrUpdate(PublisherID, "Title Test", "Description Test", 
+                        ERemoteStoragePublishedFileVisibility.k_ERemoteStoragePublishedFileVisibilityPrivate, tags, contentPath, contentPath + "LevelPreview.jpg");
+
+                    SteamAPICall_t SteamAPICall_t_handle = SteamManager.SteamUGCworkshop.sendFileOrUpdate(updateHandle, "Update NOtes are helpful... " + PublisherID);
+                    Console.WriteLine("sendFileOrUpdate (SteamAPICall_t_handle): " + SteamAPICall_t_handle);
+                }
+            }
+            ////Upload a file with F.   Not sure about this???: While uploading check the status with P. Then Q. 
+
+            //    SteamAPICall_t handle = SteamManager.SteamUGCworkshop.CreateWorkshopItem();
+
+            //// SteamAPICall_t handle = SteamUGC.CreateItem((AppId_t)480, EWorkshopFileType.k_EWorkshopFileTypeWebGuide);
+            ////OnCreateItemResultCallResult.Set(handle);
+            ////Console.WriteLine("SteamUGC.CreateItem((AppId_t)480, EWorkshopFileType.k_EWorkshopFileTypeWebGuide) : " + handle);
+
+            //Program.debugString += "Upload file handle: " + handle + "\n" + newLine; //+ bSuccess
+            txtDebug.Text = Program.debugString;
+
         }
 
-        /// <summary>
-        /// Transmits all of the stats to Steam. Do not call this function too often. Normally and the end of the round.
-        /// </summary>
-        public void storeStats()
+        private void btnSendStats_Click(object sender, EventArgs e)
         {
             if (!SteamManager.Initialized)
                 return;
 
-            ////Store stats in the Steam database if necessary
-            ////if (m_bStoreStats)
-            //{
-            //    // already set any achievements in UnlockAchievement
-            //    // set stats
-            //    //tempSession
+            SteamUserStats.SetStat("Cows Rescued", 3);
+            SteamUserStats.SetAchievement("FinishSinglePlayer");
 
-            //    SteamUserStats.SetStat("Money", (float)tempPlayer.Money);
-            //    SteamUserStats.SetStat("GamesWon", tempPlayer.universalScores.RoundsWon);
-            //    SteamUserStats.SetStat("GamesLost", tempPlayer.universalScores.RoundsLost);
-            //    //SteamUserStats.SetStat("FeetTraveled", m_flTotalFeetTraveled);
-            //    SteamUserStats.SetStat("Kills", tempPlayer.universalScores.Kills);
-            //    SteamUserStats.SetStat("Deaths", tempPlayer.universalScores.Deaths);
-            //    SteamUserStats.SetStat("K:D Ratio", tempPlayer.universalScores.KDRatio);
-            //    SteamUserStats.SetStat("Experience", tempPlayer.ExpPoints);
-            //    SteamUserStats.SetStat("Level", tempPlayer.Level);
-            //    SteamUserStats.SetStat("Coins", tempPlayer.universalScores.Coins);
-            //    SteamUserStats.SetStat("Cows Rescued", tempPlayer.universalScores.CowsRescued);
-            //    SteamUserStats.SetStat("MultiplayerRounds", tempPlayer.universalScores.MultiPlayerRounds);
-            //    SteamUserStats.SetStat("CTFRounds", tempPlayer.universalScores.CTFRounds);
-            //    SteamUserStats.SetStat("CoOp Rounds", tempPlayer.universalScores.CoOpRounds);
-            //    SteamUserStats.SetStat("Battle Rounds", tempPlayer.universalScores.BattleRounds);
+            bool bSuccess = SteamUserStats.StoreStats();
 
-            //    if (tempPlayer.CampaignData.IsLevelComplete(29))
-            //    {
-            //        SteamUserStats.SetAchievement("FinishSinglePlayer");
-            //    }
-
-            //    bool bSuccess = SteamUserStats.StoreStats();
-            //    // If this failed, we never sent anything to the server, try
-            //    // again later.
-            //    //m_bStoreStats = !bSuccess;
-            //}
-
-
+            Program.debugString += "StoreStats Success : " + bSuccess + newLine;
+            txtDebug.Text = Program.debugString;
         }
+
+
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -120,6 +125,41 @@ namespace GameTest
 
             string reasult = SteamManager.SteamAntiCheatClass.verifyTicket(tempTicket, SteamUser.GetSteamID()).ToString();
             Program.debugString += "Anti Cheat Check : " + reasult + newLine;
+            txtDebug.Text = Program.debugString;
+        }
+
+        private void button1_Click_1(object sender, EventArgs e)
+        {
+
+            SteamManager.SteamUGCworkshop.queryWorkshop("Levels");
+
+            Program.debugString += "Query sent: " + newLine; //+ bSuccess
+            txtDebug.Text = Program.debugString;
+        }
+
+        private void btnUploadProgress_Click(object sender, EventArgs e)
+        {
+            //getProgress
+
+                ulong temp;
+                ulong temp2;
+                EItemUpdateStatus progress = SteamManager.SteamUGCworkshop.getProgress(SteamManager.SteamUGCworkshop.m_UGCUpdateHandle, out temp, out temp2);
+
+
+            Program.debugString += "Upload progress: " + progress + "\n" + newLine; //+ bSuccess
+            
+
+            SteamManager.SteamUGCworkshop.m_UGCUpdateHandle = SteamUGC.StartItemUpdate((AppId_t)480, SteamManager.SteamUGCworkshop.m_PublishedFileId);
+            Program.debugString += "SteamUGC.StartItemUpdate((AppId_t)480, " + SteamManager.SteamUGCworkshop.m_PublishedFileId + ") : " + SteamManager.SteamUGCworkshop.m_UGCUpdateHandle + newLine;
+
+            txtDebug.Text = Program.debugString;
+        }
+
+        private void btnGetSubscribed_Click(object sender, EventArgs e)
+        {
+            SteamManager.SteamUGCworkshop.GetSubscribedItems();
+
+            Program.debugString += "GetSubscribedItems done: "  + newLine; //+ bSuccess
             txtDebug.Text = Program.debugString;
         }
     }

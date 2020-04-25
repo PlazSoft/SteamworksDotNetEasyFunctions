@@ -81,6 +81,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="TestUpload\TestDoc.docx" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -90,6 +91,9 @@
       <Project>{c47a0632-1e7a-48a7-8064-562c90153ac0}</Project>
       <Name>SteamworksDotNetTest2017</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="TestUpload\Christmas Party.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
