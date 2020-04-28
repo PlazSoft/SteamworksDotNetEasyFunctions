@@ -150,6 +150,41 @@ namespace GameTest
 //#endif
         }
 
+        private void btnUploadWorkshopFile_Click(object sender, EventArgs e)
+        {
+            if (SteamManager.Initialized)
+            {
+                string contentPath = Path.GetTempPath() + @"Yargis\" + uploadItem.PublisherID + @"\";
+                if (!Directory.Exists(contentPath))
+                {
+                    Directory.CreateDirectory(contentPath);
+                }
+                List<string> tags = new List<string>();
+                tags.Add("Levels");
+                uploadItem.tags = tags;
+                uploadItem.PublisherID = uploadItem.PublisherID;
+                uploadItem.contentPath = @"\TestUpload\"; //contentPath;
+                uploadItem.title = "Title Test";
+                uploadItem.description = "Description Test";
+                uploadItem.imagePreviewFile =  @"\TestUpload\Christmas Party.jpg"; //contentPath + @"\TestUpload\Christmas Party.jpg";
+                SteamAPICall_t handle = UploadToWorkshop(uploadItem.contentPath + "TestDoc.docx", uploadItem.title, uploadItem.description, uploadItem.tags, uploadItem.imagePreviewFile,
+                            ERemoteStoragePublishedFileVisibility.k_ERemoteStoragePublishedFileVisibilityPublic, EWorkshopFileType.k_EWorkshopFileTypeCommunity);
+                Console.WriteLine("steam://url/CommunityFilePage/" + uploadItem.PublisherID);
+                System.Diagnostics.Process.Start("steam://url/CommunityFilePage/" + uploadItem.PublisherID);
+            }
+
+
+        }
+
+        private SteamAPICall_t UploadToWorkshop(string fileName, string workshopTitle, string workshopDescription,  List<string> tags, string previewImage = null,
+                             ERemoteStoragePublishedFileVisibility visability =ERemoteStoragePublishedFileVisibility.k_ERemoteStoragePublishedFileVisibilityPublic,
+                             EWorkshopFileType workshopFileType= EWorkshopFileType.k_EWorkshopFileTypeCommunity)
+        {
+            SteamAPICall_t handle = SteamRemoteStorage.PublishWorkshopFile(fileName, previewImage, SteamUtils.GetAppID(), workshopTitle, workshopDescription, visability, tags, workshopFileType);
+            //RemoteStoragePublishFileResult.Set(handle);
+            return handle;
+        }
+
 
         private void btnSendStats_Click(object sender, EventArgs e)
         {

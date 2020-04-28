@@ -40,11 +40,12 @@
             this.CheckPublishIDTimer = new System.Windows.Forms.Timer(this.components);
             this.CheckUploadTimer = new System.Windows.Forms.Timer(this.components);
             this.UploadProgress = new System.Windows.Forms.ProgressBar();
+            this.btnUploadWorkshopFile = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btnUploadWorkshop
             // 
-            this.btnUploadWorkshop.Location = new System.Drawing.Point(12, 12);
+            this.btnUploadWorkshop.Location = new System.Drawing.Point(318, 4);
             this.btnUploadWorkshop.Name = "btnUploadWorkshop";
             this.btnUploadWorkshop.Size = new System.Drawing.Size(101, 34);
             this.btnUploadWorkshop.TabIndex = 0;
@@ -63,7 +64,7 @@
             // 
             // btnSendStats
             // 
-            this.btnSendStats.Location = new System.Drawing.Point(119, 12);
+            this.btnSendStats.Location = new System.Drawing.Point(12, 4);
             this.btnSendStats.Name = "btnSendStats";
             this.btnSendStats.Size = new System.Drawing.Size(96, 51);
             this.btnSendStats.TabIndex = 2;
@@ -73,7 +74,7 @@
             // 
             // btnCheckOwnership
             // 
-            this.btnCheckOwnership.Location = new System.Drawing.Point(221, 12);
+            this.btnCheckOwnership.Location = new System.Drawing.Point(114, 4);
             this.btnCheckOwnership.Name = "btnCheckOwnership";
             this.btnCheckOwnership.Size = new System.Drawing.Size(96, 51);
             this.btnCheckOwnership.TabIndex = 3;
@@ -83,7 +84,7 @@
             // 
             // btnVerifyAntiCheat
             // 
-            this.btnVerifyAntiCheat.Location = new System.Drawing.Point(323, 12);
+            this.btnVerifyAntiCheat.Location = new System.Drawing.Point(216, 4);
             this.btnVerifyAntiCheat.Name = "btnVerifyAntiCheat";
             this.btnVerifyAntiCheat.Size = new System.Drawing.Size(96, 51);
             this.btnVerifyAntiCheat.TabIndex = 4;
@@ -93,7 +94,7 @@
             // 
             // btnQueryWorkshop
             // 
-            this.btnQueryWorkshop.Location = new System.Drawing.Point(12, 52);
+            this.btnQueryWorkshop.Location = new System.Drawing.Point(318, 44);
             this.btnQueryWorkshop.Name = "btnQueryWorkshop";
             this.btnQueryWorkshop.Size = new System.Drawing.Size(101, 23);
             this.btnQueryWorkshop.TabIndex = 5;
@@ -103,7 +104,7 @@
             // 
             // btnUploadProgress
             // 
-            this.btnUploadProgress.Location = new System.Drawing.Point(12, 81);
+            this.btnUploadProgress.Location = new System.Drawing.Point(318, 73);
             this.btnUploadProgress.Name = "btnUploadProgress";
             this.btnUploadProgress.Size = new System.Drawing.Size(101, 21);
             this.btnUploadProgress.TabIndex = 6;
@@ -113,7 +114,7 @@
             // 
             // btnGetSubscribed
             // 
-            this.btnGetSubscribed.Location = new System.Drawing.Point(12, 108);
+            this.btnGetSubscribed.Location = new System.Drawing.Point(318, 100);
             this.btnGetSubscribed.Name = "btnGetSubscribed";
             this.btnGetSubscribed.Size = new System.Drawing.Size(101, 21);
             this.btnGetSubscribed.TabIndex = 7;
@@ -138,11 +139,22 @@
             this.UploadProgress.Size = new System.Drawing.Size(776, 23);
             this.UploadProgress.TabIndex = 8;
             // 
+            // btnUploadWorkshopFile
+            // 
+            this.btnUploadWorkshopFile.Location = new System.Drawing.Point(425, 4);
+            this.btnUploadWorkshopFile.Name = "btnUploadWorkshopFile";
+            this.btnUploadWorkshopFile.Size = new System.Drawing.Size(101, 34);
+            this.btnUploadWorkshopFile.TabIndex = 9;
+            this.btnUploadWorkshopFile.Text = "Upload File to Workshop";
+            this.btnUploadWorkshopFile.UseVisualStyleBackColor = true;
+            this.btnUploadWorkshopFile.Click += new System.EventHandler(this.btnUploadWorkshopFile_Click);
+            // 
             // frmGameTest
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.btnUploadWorkshopFile);
             this.Controls.Add(this.UploadProgress);
             this.Controls.Add(this.btnGetSubscribed);
             this.Controls.Add(this.btnUploadProgress);
@@ -173,6 +185,7 @@
         private System.Windows.Forms.Timer CheckPublishIDTimer;
         private System.Windows.Forms.Timer CheckUploadTimer;
         private System.Windows.Forms.ProgressBar UploadProgress;
+        private System.Windows.Forms.Button btnUploadWorkshopFile;
     }
 }
 
