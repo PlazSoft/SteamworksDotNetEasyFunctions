@@ -16,6 +16,10 @@ namespace GameTest
     public partial class frmGameTest : Form
     {
         public const string newLine = "\r\n";
+        SteamAPICall_t workshopUploadHandle;
+
+        public itemToUpload uploadItem = new itemToUpload();
+
         public frmGameTest()
         {
             InitializeComponent();
@@ -55,17 +59,21 @@ namespace GameTest
 
         private void btnUploadWorkshop_Click(object sender, EventArgs e)
         {
+            //Creating a new publisher ID every time will create a new file. To update you must populate the publisherID
+            //PublishedFileId_t PublisherID = new PublishedFileId_t(); 
 
-            PublishedFileId_t PublisherID = new PublishedFileId_t(); 
+            //Normal behavior:
             if (SteamManager.Initialized)
             {
-                if (PublisherID == (Steamworks.PublishedFileId_t)0)
+                if (uploadItem.PublisherID == (Steamworks.PublishedFileId_t)0)
                 {
-                    SteamManager.SteamUGCworkshop.CreateWorkshopItem();
+                    workshopUploadHandle = SteamManager.SteamUGCworkshop.CreateWorkshopItem();
+                    CheckPublishIDTimer.Enabled = true;
+                   // PublisherID = workshopUploadHandle;
                 }
                 else
                 {
-                    string contentPath = Path.GetTempPath() + @"Yargis\" + PublisherID + @"\";
+                    string contentPath = Path.GetTempPath() + @"Yargis\" + uploadItem.PublisherID + @"\";
                     if (!Directory.Exists(contentPath))
                     {
                         Directory.CreateDirectory(contentPath);
@@ -73,14 +81,16 @@ namespace GameTest
                     //file.SaveLevelAs(contentPath + Path.GetFileName(file.currentLevelFileName));
                     List<string> tags = new List<string>();
                     tags.Add("Levels");
-                    //FileStream stream = new FileStream(contentPath + @"LevelPreview.jpg", FileMode.Create);
-                    //level.Preview.LevelPreview.SaveAsJpeg(stream, level.Preview.LevelPreview.Width, level.Preview.LevelPreview.Height);
-                    //stream.Close();
-                    UGCUpdateHandle_t updateHandle = SteamManager.SteamUGCworkshop.registerFileInfoOrUpdate(PublisherID, "Title Test", "Description Test", 
-                        ERemoteStoragePublishedFileVisibility.k_ERemoteStoragePublishedFileVisibilityPrivate, tags, contentPath, contentPath + "LevelPreview.jpg");
+                    uploadItem.tags = tags;
+                    uploadItem.PublisherID = uploadItem.PublisherID;
+                    uploadItem.contentPath = contentPath;
+                    uploadItem.title = "Title Test";
+                    uploadItem.description = "Description Test";
+                    uploadItem.imagePreviewFile = contentPath + "LevelPreview.jpg";
+                    itemToUpload.uploadToWorkshop(uploadItem.PublisherID, uploadItem.tags, uploadItem.contentPath, uploadItem.title, uploadItem.description, uploadItem.imagePreviewFile);
 
-                    SteamAPICall_t SteamAPICall_t_handle = SteamManager.SteamUGCworkshop.sendFileOrUpdate(updateHandle, "Update NOtes are helpful... " + PublisherID);
-                    Console.WriteLine("sendFileOrUpdate (SteamAPICall_t_handle): " + SteamAPICall_t_handle);
+    //                UGCUpdateHandle_t updateHandle = SteamManager.SteamUGCworkshop.registerFileInfoOrUpdate(PublisherID, "Title Test", "Description Test",
+    //ERemoteStoragePublishedFileVisibility.k_ERemoteStoragePublishedFileVisibilityPrivate, tags, contentPath, contentPath + "LevelPreview.jpg");
                 }
             }
             ////Upload a file with F.   Not sure about this???: While uploading check the status with P. Then Q. 
@@ -95,6 +105,51 @@ namespace GameTest
             txtDebug.Text = Program.debugString;
 
         }
+
+        private void CheckPublishIDTimer_Tick(object sender, EventArgs e)
+        {
+//#if STEAMCLIENT
+            //Console.WriteLine("SteamManager.SteamUGCworkshop.m_PublishedFileId: " + SteamManager.SteamUGCworkshop.m_PublishedFileId);
+            if (SteamManager.SteamUGCworkshop != null && SteamManager.SteamUGCworkshop.m_PublishedFileId != null && SteamManager.SteamUGCworkshop.m_PublishedFileId.m_PublishedFileId != null &&
+                (int)SteamManager.SteamUGCworkshop.m_PublishedFileId.m_PublishedFileId != 0)
+            {
+                uploadItem.PublisherID = SteamManager.SteamUGCworkshop.m_PublishedFileId;
+                //level.Preview.PublisherID = SteamManager.SteamUGCworkshop.m_PublishedFileId;
+                //publisherID = SteamManager.SteamUGCworkshop.m_PublishedFileId;
+                //publisherIDlbl.Text= SteamManager.SteamUGCworkshop.m_PublishedFileId.ToString();
+                //MainEditorForm tempParent = ((MainEditorForm)theParent);
+                itemToUpload.uploadToWorkshop(uploadItem.PublisherID, uploadItem.tags, uploadItem.contentPath, uploadItem.title, uploadItem.description, uploadItem.imagePreviewFile);
+                
+                CheckPublishIDTimer.Enabled = false;
+
+                CheckUploadTimer.Enabled = true;
+            }
+//#endif
+        }
+
+        private void CheckUploadTimer_Tick(object sender, EventArgs e)
+        {
+//#if STEAMCLIENT
+            ulong BytesProcessed;
+            ulong BytesTotal;
+
+            if (SteamManager.SteamUGCworkshop.getProgress(SteamManager.SteamUGCworkshop.m_UGCUpdateHandle, out BytesProcessed, out BytesTotal) == EItemUpdateStatus.k_EItemUpdateStatusInvalid)
+            {
+                Console.WriteLine("steam://url/CommunityFilePage/" + uploadItem.PublisherID);
+                System.Diagnostics.Process.Start("steam://url/CommunityFilePage/" + uploadItem.PublisherID);
+                CheckUploadTimer.Enabled = false;
+                UploadProgress.Visible = false;
+            }
+            else
+            {
+                UploadProgress.Visible = true;
+                UploadProgress.Value = 0;
+                UploadProgress.Maximum = (int)BytesTotal;
+                UploadProgress.Value = (int)BytesProcessed;
+            }
+//#endif
+        }
+
 
         private void btnSendStats_Click(object sender, EventArgs e)
         {
@@ -162,6 +217,8 @@ namespace GameTest
             Program.debugString += "GetSubscribedItems done: "  + newLine; //+ bSuccess
             txtDebug.Text = Program.debugString;
         }
+
+
     }
 }
 

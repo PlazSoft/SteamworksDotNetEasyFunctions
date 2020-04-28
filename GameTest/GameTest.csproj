@@ -58,6 +58,7 @@
     <Compile Include="frmGameTest.Designer.cs">
       <DependentUpon>frmGameTest.cs</DependentUpon>
     </Compile>
+    <Compile Include="itemToUpload.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="frmGameTest.resx">

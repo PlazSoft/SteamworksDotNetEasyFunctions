@@ -391,7 +391,7 @@ public class SteamUGCTest
 
         Console.WriteLine("[" + CreateItemResult_t.k_iCallback + " - CreateItemResult_t] - " + pCallback.m_eResult + " -- " + pCallback.m_nPublishedFileId + " -- " + pCallback.m_bUserNeedsToAcceptWorkshopLegalAgreement);
 
-        m_PublishedFileId = pCallback.m_nPublishedFileId;
+        m_PublishedFileId = pCallback.m_nPublishedFileId;   //TODO: This is not being called<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     }
 

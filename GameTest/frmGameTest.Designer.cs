@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.btnUploadWorkshop = new System.Windows.Forms.Button();
             this.txtDebug = new System.Windows.Forms.TextBox();
             this.btnSendStats = new System.Windows.Forms.Button();
@@ -36,6 +37,9 @@
             this.btnQueryWorkshop = new System.Windows.Forms.Button();
             this.btnUploadProgress = new System.Windows.Forms.Button();
             this.btnGetSubscribed = new System.Windows.Forms.Button();
+            this.CheckPublishIDTimer = new System.Windows.Forms.Timer(this.components);
+            this.CheckUploadTimer = new System.Windows.Forms.Timer(this.components);
+            this.UploadProgress = new System.Windows.Forms.ProgressBar();
             this.SuspendLayout();
             // 
             // btnUploadWorkshop
@@ -51,10 +55,10 @@
             // txtDebug
             // 
             this.txtDebug.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.txtDebug.Location = new System.Drawing.Point(0, 136);
+            this.txtDebug.Location = new System.Drawing.Point(0, 168);
             this.txtDebug.Multiline = true;
             this.txtDebug.Name = "txtDebug";
-            this.txtDebug.Size = new System.Drawing.Size(800, 314);
+            this.txtDebug.Size = new System.Drawing.Size(800, 282);
             this.txtDebug.TabIndex = 1;
             // 
             // btnSendStats
@@ -117,11 +121,29 @@
             this.btnGetSubscribed.UseVisualStyleBackColor = true;
             this.btnGetSubscribed.Click += new System.EventHandler(this.btnGetSubscribed_Click);
             // 
+            // CheckPublishIDTimer
+            // 
+            this.CheckPublishIDTimer.Interval = 1000;
+            this.CheckPublishIDTimer.Tick += new System.EventHandler(this.CheckPublishIDTimer_Tick);
+            // 
+            // CheckUploadTimer
+            // 
+            this.CheckUploadTimer.Interval = 1000;
+            this.CheckUploadTimer.Tick += new System.EventHandler(this.CheckUploadTimer_Tick);
+            // 
+            // UploadProgress
+            // 
+            this.UploadProgress.Location = new System.Drawing.Point(12, 135);
+            this.UploadProgress.Name = "UploadProgress";
+            this.UploadProgress.Size = new System.Drawing.Size(776, 23);
+            this.UploadProgress.TabIndex = 8;
+            // 
             // frmGameTest
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.UploadProgress);
             this.Controls.Add(this.btnGetSubscribed);
             this.Controls.Add(this.btnUploadProgress);
             this.Controls.Add(this.btnQueryWorkshop);
@@ -148,6 +170,9 @@
         private System.Windows.Forms.Button btnQueryWorkshop;
         private System.Windows.Forms.Button btnUploadProgress;
         private System.Windows.Forms.Button btnGetSubscribed;
+        private System.Windows.Forms.Timer CheckPublishIDTimer;
+        private System.Windows.Forms.Timer CheckUploadTimer;
+        private System.Windows.Forms.ProgressBar UploadProgress;
     }
 }
 
