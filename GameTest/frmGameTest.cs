@@ -65,7 +65,7 @@ namespace GameTest
             //Normal behavior:
             if (SteamManager.Initialized)
             {
-                if (uploadItem.PublisherID == (Steamworks.PublishedFileId_t)0)
+                if (uploadItem.PublishedFileID == (Steamworks.PublishedFileId_t)0)
                 {
                     workshopUploadHandle = SteamManager.SteamUGCworkshop.CreateWorkshopItem();
                     CheckPublishIDTimer.Enabled = true;
@@ -73,7 +73,7 @@ namespace GameTest
                 }
                 else
                 {
-                    string contentPath = Path.GetTempPath() + @"Yargis\" + uploadItem.PublisherID + @"\";
+                    string contentPath = Path.GetTempPath() + @"Yargis\" + uploadItem.PublishedFileID + @"\";
                     if (!Directory.Exists(contentPath))
                     {
                         Directory.CreateDirectory(contentPath);
@@ -82,12 +82,12 @@ namespace GameTest
                     List<string> tags = new List<string>();
                     tags.Add("Levels");
                     uploadItem.tags = tags;
-                    uploadItem.PublisherID = uploadItem.PublisherID;
+                    uploadItem.PublishedFileID = uploadItem.PublishedFileID;
                     uploadItem.contentPath = contentPath;
                     uploadItem.title = "Title Test";
                     uploadItem.description = "Description Test";
                     uploadItem.imagePreviewFile = contentPath + "LevelPreview.jpg";
-                    itemToUpload.uploadToWorkshop(uploadItem.PublisherID, uploadItem.tags, uploadItem.contentPath, uploadItem.title, uploadItem.description, uploadItem.imagePreviewFile);
+                    itemToUpload.uploadToWorkshop(uploadItem.PublishedFileID, uploadItem.tags, uploadItem.contentPath, uploadItem.title, uploadItem.description, uploadItem.imagePreviewFile);
 
     //                UGCUpdateHandle_t updateHandle = SteamManager.SteamUGCworkshop.registerFileInfoOrUpdate(PublisherID, "Title Test", "Description Test",
     //ERemoteStoragePublishedFileVisibility.k_ERemoteStoragePublishedFileVisibilityPrivate, tags, contentPath, contentPath + "LevelPreview.jpg");
@@ -113,12 +113,12 @@ namespace GameTest
             if (SteamManager.SteamUGCworkshop != null && SteamManager.SteamUGCworkshop.m_PublishedFileId != null && SteamManager.SteamUGCworkshop.m_PublishedFileId.m_PublishedFileId != null &&
                 (int)SteamManager.SteamUGCworkshop.m_PublishedFileId.m_PublishedFileId != 0)
             {
-                uploadItem.PublisherID = SteamManager.SteamUGCworkshop.m_PublishedFileId;
+                uploadItem.PublishedFileID = SteamManager.SteamUGCworkshop.m_PublishedFileId;
                 //level.Preview.PublisherID = SteamManager.SteamUGCworkshop.m_PublishedFileId;
                 //publisherID = SteamManager.SteamUGCworkshop.m_PublishedFileId;
                 //publisherIDlbl.Text= SteamManager.SteamUGCworkshop.m_PublishedFileId.ToString();
                 //MainEditorForm tempParent = ((MainEditorForm)theParent);
-                itemToUpload.uploadToWorkshop(uploadItem.PublisherID, uploadItem.tags, uploadItem.contentPath, uploadItem.title, uploadItem.description, uploadItem.imagePreviewFile);
+                itemToUpload.uploadToWorkshop(uploadItem.PublishedFileID, uploadItem.tags, uploadItem.contentPath, uploadItem.title, uploadItem.description, uploadItem.imagePreviewFile);
                 
                 CheckPublishIDTimer.Enabled = false;
 
@@ -135,8 +135,8 @@ namespace GameTest
 
             if (SteamManager.SteamUGCworkshop.getProgress(SteamManager.SteamUGCworkshop.m_UGCUpdateHandle, out BytesProcessed, out BytesTotal) == EItemUpdateStatus.k_EItemUpdateStatusInvalid)
             {
-                Console.WriteLine("steam://url/CommunityFilePage/" + uploadItem.PublisherID);
-                System.Diagnostics.Process.Start("steam://url/CommunityFilePage/" + uploadItem.PublisherID);
+                Console.WriteLine("steam://url/CommunityFilePage/" + uploadItem.PublishedFileID);
+                System.Diagnostics.Process.Start("steam://url/CommunityFilePage/" + uploadItem.PublishedFileID);
                 CheckUploadTimer.Enabled = false;
                 UploadProgress.Visible = false;
             }
@@ -150,40 +150,40 @@ namespace GameTest
 //#endif
         }
 
-        private void btnUploadWorkshopFile_Click(object sender, EventArgs e)
-        {
-            if (SteamManager.Initialized)
-            {
-                string contentPath = Path.GetTempPath() + @"Yargis\" + uploadItem.PublisherID + @"\";
-                if (!Directory.Exists(contentPath))
-                {
-                    Directory.CreateDirectory(contentPath);
-                }
-                List<string> tags = new List<string>();
-                tags.Add("Levels");
-                uploadItem.tags = tags;
-                uploadItem.PublisherID = uploadItem.PublisherID;
-                uploadItem.contentPath = @"\TestUpload\"; //contentPath;
-                uploadItem.title = "Title Test";
-                uploadItem.description = "Description Test";
-                uploadItem.imagePreviewFile =  @"\TestUpload\Christmas Party.jpg"; //contentPath + @"\TestUpload\Christmas Party.jpg";
-                SteamAPICall_t handle = UploadToWorkshop(uploadItem.contentPath + "TestDoc.docx", uploadItem.title, uploadItem.description, uploadItem.tags, uploadItem.imagePreviewFile,
-                            ERemoteStoragePublishedFileVisibility.k_ERemoteStoragePublishedFileVisibilityPublic, EWorkshopFileType.k_EWorkshopFileTypeCommunity);
-                Console.WriteLine("steam://url/CommunityFilePage/" + uploadItem.PublisherID);
-                System.Diagnostics.Process.Start("steam://url/CommunityFilePage/" + uploadItem.PublisherID);
-            }
+        //private void btnUploadWorkshopFile_Click(object sender, EventArgs e)
+        //{
+        //    //if (SteamManager.Initialized)
+        //    //{
+        //    //    string contentPath = Path.GetTempPath() + @"Yargis\" + uploadItem.PublisherID + @"\";
+        //    //    if (!Directory.Exists(contentPath))
+        //    //    {
+        //    //        Directory.CreateDirectory(contentPath);
+        //    //    }
+        //    //    List<string> tags = new List<string>();
+        //    //    tags.Add("Levels");
+        //    //    uploadItem.tags = tags;
+        //    //    uploadItem.PublisherID = uploadItem.PublisherID;
+        //    //    uploadItem.contentPath = @"\TestUpload\"; //contentPath;
+        //    //    uploadItem.title = "Title Test";
+        //    //    uploadItem.description = "Description Test";
+        //    //    uploadItem.imagePreviewFile =  @"\TestUpload\Christmas Party.jpg"; //contentPath + @"\TestUpload\Christmas Party.jpg";
+        //    //    SteamAPICall_t handle = UploadToWorkshop(uploadItem.contentPath + "TestDoc.docx", uploadItem.title, uploadItem.description, uploadItem.tags, uploadItem.imagePreviewFile,
+        //    //                ERemoteStoragePublishedFileVisibility.k_ERemoteStoragePublishedFileVisibilityPublic, EWorkshopFileType.k_EWorkshopFileTypeCommunity);
+        //    //    Console.WriteLine("steam://url/CommunityFilePage/" + uploadItem.PublisherID);
+        //    //    System.Diagnostics.Process.Start("steam://url/CommunityFilePage/" + uploadItem.PublisherID);
+        //    //}
 
 
-        }
+        //}
 
-        private SteamAPICall_t UploadToWorkshop(string fileName, string workshopTitle, string workshopDescription,  List<string> tags, string previewImage = null,
-                             ERemoteStoragePublishedFileVisibility visability =ERemoteStoragePublishedFileVisibility.k_ERemoteStoragePublishedFileVisibilityPublic,
-                             EWorkshopFileType workshopFileType= EWorkshopFileType.k_EWorkshopFileTypeCommunity)
-        {
-            SteamAPICall_t handle = SteamRemoteStorage.PublishWorkshopFile(fileName, previewImage, SteamUtils.GetAppID(), workshopTitle, workshopDescription, visability, tags, workshopFileType);
-            //RemoteStoragePublishFileResult.Set(handle);
-            return handle;
-        }
+        //private SteamAPICall_t UploadToWorkshop(string fileName, string workshopTitle, string workshopDescription,  List<string> tags, string previewImage = null,
+        //                     ERemoteStoragePublishedFileVisibility visability =ERemoteStoragePublishedFileVisibility.k_ERemoteStoragePublishedFileVisibilityPublic,
+        //                     EWorkshopFileType workshopFileType= EWorkshopFileType.k_EWorkshopFileTypeCommunity)
+        //{
+        //    SteamAPICall_t handle = SteamRemoteStorage.PublishWorkshopFile(fileName, previewImage, SteamUtils.GetAppID(), workshopTitle, workshopDescription, visability, tags, workshopFileType);
+        //    //RemoteStoragePublishFileResult.Set(handle);
+        //    return handle;
+        //}
 
 
         private void btnSendStats_Click(object sender, EventArgs e)

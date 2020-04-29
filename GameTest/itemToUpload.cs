@@ -9,7 +9,7 @@ namespace GameTest
 {
     public class itemToUpload
     {
-        public PublishedFileId_t PublisherID;
+        public PublishedFileId_t PublishedFileID;
         public List<string> tags;
         public string contentPath;
         public string title;

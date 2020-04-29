@@ -141,13 +141,13 @@
             // 
             // btnUploadWorkshopFile
             // 
+            this.btnUploadWorkshopFile.Enabled = false;
             this.btnUploadWorkshopFile.Location = new System.Drawing.Point(425, 4);
             this.btnUploadWorkshopFile.Name = "btnUploadWorkshopFile";
             this.btnUploadWorkshopFile.Size = new System.Drawing.Size(101, 34);
             this.btnUploadWorkshopFile.TabIndex = 9;
             this.btnUploadWorkshopFile.Text = "Upload File to Workshop";
             this.btnUploadWorkshopFile.UseVisualStyleBackColor = true;
-            this.btnUploadWorkshopFile.Click += new System.EventHandler(this.btnUploadWorkshopFile_Click);
             // 
             // frmGameTest
             // 
