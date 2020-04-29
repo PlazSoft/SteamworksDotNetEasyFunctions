@@ -40,7 +40,7 @@
             this.CheckPublishIDTimer = new System.Windows.Forms.Timer(this.components);
             this.CheckUploadTimer = new System.Windows.Forms.Timer(this.components);
             this.UploadProgress = new System.Windows.Forms.ProgressBar();
-            this.btnUploadWorkshopFile = new System.Windows.Forms.Button();
+            this.CheckCallBacks = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // btnUploadWorkshop
@@ -139,22 +139,17 @@
             this.UploadProgress.Size = new System.Drawing.Size(776, 23);
             this.UploadProgress.TabIndex = 8;
             // 
-            // btnUploadWorkshopFile
+            // CheckCallBacks
             // 
-            this.btnUploadWorkshopFile.Enabled = false;
-            this.btnUploadWorkshopFile.Location = new System.Drawing.Point(425, 4);
-            this.btnUploadWorkshopFile.Name = "btnUploadWorkshopFile";
-            this.btnUploadWorkshopFile.Size = new System.Drawing.Size(101, 34);
-            this.btnUploadWorkshopFile.TabIndex = 9;
-            this.btnUploadWorkshopFile.Text = "Upload File to Workshop";
-            this.btnUploadWorkshopFile.UseVisualStyleBackColor = true;
+            this.CheckCallBacks.Enabled = true;
+            this.CheckCallBacks.Interval = 2000;
+            this.CheckCallBacks.Tick += new System.EventHandler(this.CheckCallBacks_Tick);
             // 
             // frmGameTest
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Controls.Add(this.btnUploadWorkshopFile);
             this.Controls.Add(this.UploadProgress);
             this.Controls.Add(this.btnGetSubscribed);
             this.Controls.Add(this.btnUploadProgress);
@@ -185,7 +180,7 @@
         private System.Windows.Forms.Timer CheckPublishIDTimer;
         private System.Windows.Forms.Timer CheckUploadTimer;
         private System.Windows.Forms.ProgressBar UploadProgress;
-        private System.Windows.Forms.Button btnUploadWorkshopFile;
+        private System.Windows.Forms.Timer CheckCallBacks;
     }
 }
 

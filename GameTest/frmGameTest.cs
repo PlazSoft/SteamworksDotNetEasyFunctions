@@ -62,9 +62,19 @@ namespace GameTest
             //Creating a new publisher ID every time will create a new file. To update you must populate the publisherID
             //PublishedFileId_t PublisherID = new PublishedFileId_t(); 
 
-            //Normal behavior:
+            List<string> tags = new List<string>();
+            tags.Add("Levels");
+            uploadItem.tags = tags;
+            uploadItem.PublishedFileID = uploadItem.PublishedFileID;
+
+            uploadItem.title = "Title Test";
+            uploadItem.description = "Description Test";
+
+
             if (SteamManager.Initialized)
             {
+
+
                 if (uploadItem.PublishedFileID == (Steamworks.PublishedFileId_t)0)
                 {
                     workshopUploadHandle = SteamManager.SteamUGCworkshop.CreateWorkshopItem();
@@ -73,20 +83,7 @@ namespace GameTest
                 }
                 else
                 {
-                    string contentPath = Path.GetTempPath() + @"Yargis\" + uploadItem.PublishedFileID + @"\";
-                    if (!Directory.Exists(contentPath))
-                    {
-                        Directory.CreateDirectory(contentPath);
-                    }
                     //file.SaveLevelAs(contentPath + Path.GetFileName(file.currentLevelFileName));
-                    List<string> tags = new List<string>();
-                    tags.Add("Levels");
-                    uploadItem.tags = tags;
-                    uploadItem.PublishedFileID = uploadItem.PublishedFileID;
-                    uploadItem.contentPath = contentPath;
-                    uploadItem.title = "Title Test";
-                    uploadItem.description = "Description Test";
-                    uploadItem.imagePreviewFile = contentPath + "LevelPreview.jpg";
                     itemToUpload.uploadToWorkshop(uploadItem.PublishedFileID, uploadItem.tags, uploadItem.contentPath, uploadItem.title, uploadItem.description, uploadItem.imagePreviewFile);
 
     //                UGCUpdateHandle_t updateHandle = SteamManager.SteamUGCworkshop.registerFileInfoOrUpdate(PublisherID, "Title Test", "Description Test",
@@ -105,26 +102,54 @@ namespace GameTest
             txtDebug.Text = Program.debugString;
 
         }
+        
+        public static string GetFileNameFromPath(string Path)
+        {
+            try
+            {
+                return Path.Substring(Path.LastIndexOf(@"\") + 1);
+            }
+            catch (Exception ex)
+            {
+                return Path;
+            }
+        }
+
+        static void CopyFiles(string source, string destination, string searchPattern,  bool overwrite)
+        {
+            foreach (string foundFile in System.IO.Directory.GetFiles(source, searchPattern))
+                File.Copy(System.IO.Path.Combine(source, GetFileNameFromPath(foundFile)), System.IO.Path.Combine(destination, GetFileNameFromPath(foundFile)));
+        }
+
+
+        public void updateContentPaths()
+        {
+            string contentPath = Path.GetTempPath() + @"SteamUploads\" + uploadItem.PublishedFileID + @"\";
+            if (!Directory.Exists(contentPath))
+            {
+                Directory.CreateDirectory(contentPath);
+            }
+
+            System.IO.Directory.CreateDirectory(Path.GetTempPath() + @"SteamUploads\");
+           // DirectoryInfo src = new DirectoryInfo(@"TestUpload\*.*");
+           // DirectoryInfo dst = new DirectoryInfo(contentPath);
+            CopyFiles(@"TestUpload\", contentPath, "*.*", true);
+
+            uploadItem.contentPath = contentPath; //TODO: We may need to update this in production <<<<<<<<<<<<<<<<<<<<<<<<<<
+            uploadItem.imagePreviewFile = contentPath + "Christmas Party.jpg";
+        }
 
         private void CheckPublishIDTimer_Tick(object sender, EventArgs e)
         {
-//#if STEAMCLIENT
-            //Console.WriteLine("SteamManager.SteamUGCworkshop.m_PublishedFileId: " + SteamManager.SteamUGCworkshop.m_PublishedFileId);
             if (SteamManager.SteamUGCworkshop != null && SteamManager.SteamUGCworkshop.m_PublishedFileId != null && SteamManager.SteamUGCworkshop.m_PublishedFileId.m_PublishedFileId != null &&
                 (int)SteamManager.SteamUGCworkshop.m_PublishedFileId.m_PublishedFileId != 0)
             {
                 uploadItem.PublishedFileID = SteamManager.SteamUGCworkshop.m_PublishedFileId;
-                //level.Preview.PublisherID = SteamManager.SteamUGCworkshop.m_PublishedFileId;
-                //publisherID = SteamManager.SteamUGCworkshop.m_PublishedFileId;
-                //publisherIDlbl.Text= SteamManager.SteamUGCworkshop.m_PublishedFileId.ToString();
-                //MainEditorForm tempParent = ((MainEditorForm)theParent);
+                updateContentPaths();
                 itemToUpload.uploadToWorkshop(uploadItem.PublishedFileID, uploadItem.tags, uploadItem.contentPath, uploadItem.title, uploadItem.description, uploadItem.imagePreviewFile);
-                
                 CheckPublishIDTimer.Enabled = false;
-
                 CheckUploadTimer.Enabled = true;
             }
-//#endif
         }
 
         private void CheckUploadTimer_Tick(object sender, EventArgs e)
@@ -135,10 +160,11 @@ namespace GameTest
 
             if (SteamManager.SteamUGCworkshop.getProgress(SteamManager.SteamUGCworkshop.m_UGCUpdateHandle, out BytesProcessed, out BytesTotal) == EItemUpdateStatus.k_EItemUpdateStatusInvalid)
             {
-                Console.WriteLine("steam://url/CommunityFilePage/" + uploadItem.PublishedFileID);
-                System.Diagnostics.Process.Start("steam://url/CommunityFilePage/" + uploadItem.PublishedFileID);
                 CheckUploadTimer.Enabled = false;
                 UploadProgress.Visible = false;
+                Console.WriteLine("steam://url/CommunityFilePage/" + uploadItem.PublishedFileID);
+                System.Diagnostics.Process.Start("steam://url/CommunityFilePage/" + uploadItem.PublishedFileID);
+                
             }
             else
             {
@@ -253,7 +279,10 @@ namespace GameTest
             txtDebug.Text = Program.debugString;
         }
 
-
+        private void CheckCallBacks_Tick(object sender, EventArgs e)
+        {
+            SteamAPI.RunCallbacks();
+        }
     }
 }
 
